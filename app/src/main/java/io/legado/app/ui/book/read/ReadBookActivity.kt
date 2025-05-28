@@ -1343,6 +1343,7 @@ class ReadBookActivity : BaseReadBookActivity(),
             }
 
             BaseReadAloudService.pause -> {
+                /*
                 val scrollPageAnim = ReadBook.pageAnim() == 3
                 if (scrollPageAnim && pageChanged) {
                     pageChanged = false
@@ -1351,6 +1352,10 @@ class ReadBookActivity : BaseReadBookActivity(),
                 } else {
                     ReadAloud.resume(this)
                 }
+                 */
+                ReadAloud.resume(this)
+                // [删除] 滚动模式暂停时，点击朗读时页面变了，会重新播放当前位置
+                // [变成] 继续之前的位置播放
             }
 
             else -> ReadAloud.pause(this)
