@@ -243,7 +243,12 @@ abstract class BaseReadAloudService : BaseService(),
                 .split("\n")
                 .filter { it.isNotEmpty() }
             var pos = startPos
-            val page = textChapter.getPage(pageIndex)!!
+            // val page = textChapter.getPage(pageIndex)!!
+            // 查找第一个有文字的页面，不全是图片的页面
+            val page = textChapter.pages.drop(pageIndex).firstOrNull { page ->
+                page.lines.any { line -> !line.isImage }
+            }!!
+
             if (pos > 0) {
                 for (paragraph in page.paragraphs) {
                     val tmp = pos - paragraph.length - 1
