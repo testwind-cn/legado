@@ -131,6 +131,7 @@ abstract class BaseReadAloudService : BaseService(),
     var pageChanged = false
     private var toLast = false
     var paragraphStartPos = 0
+    var readAloudBySentence = false
     var readAloudByPage = false
         private set
 
@@ -256,10 +257,13 @@ abstract class BaseReadAloudService : BaseService(),
                     pos = tmp
                 }
             }
-            nowSpeak = textChapter.getParagraphNum(readAloudNumber + 1, readAloudByPage) - 1
-            if (!readAloudByPage && startPos == 0 && !toLast) {
-                pos = page.chapterPosition -
-                        textChapter.paragraphs[nowSpeak].chapterPosition
+            if ( ! readAloudBySentence ) {
+                nowSpeak = textChapter.getParagraphNum(readAloudNumber + 1, readAloudByPage) - 1
+                if (!readAloudByPage && startPos == 0 && !toLast) {
+                    pos = page.chapterPosition -
+                            textChapter.paragraphs[nowSpeak].chapterPosition
+                }
+            }
             }
             if (toLast) {
                 toLast = false
