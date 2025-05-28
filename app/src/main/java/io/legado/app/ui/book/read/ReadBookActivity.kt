@@ -1323,6 +1323,10 @@ class ReadBookActivity : BaseReadBookActivity(),
      */
     override fun onClickReadAloud() {
         autoPageStop()
+        toggleReadAloud(true)
+    }
+
+    private fun toggleReadAloud(needStart: Boolean) {
         when {
             !BaseReadAloudService.isRun -> {
                 ReadAloud.upReadAloudClass()
