@@ -1,6 +1,7 @@
 package io.legado.app.ui.book.read.page.entities
 
 
+import android.util.Log
 import androidx.annotation.Keep
 import io.legado.app.data.entities.Book
 import io.legado.app.data.entities.BookChapter
@@ -10,6 +11,7 @@ import io.legado.app.ui.book.read.page.provider.LayoutProgressListener
 import io.legado.app.ui.book.read.page.provider.TextChapterLayout
 import io.legado.app.utils.fastBinarySearchBy
 import kotlinx.coroutines.CoroutineScope
+import java.util.regex.Pattern
 import kotlin.math.abs
 import kotlin.math.min
 
@@ -193,6 +195,67 @@ data class TextChapter(
             }
         }
         return stringBuilder.substring(startPos).toString()
+    }
+
+    /**
+     * @return 需要朗读的句子列表
+     * @param pageIndex 起始页
+     * @param pageSplit 是否分页
+     * @param startPos 从当前页什么地方开始朗读
+     */
+    fun getNeedReadAloudSentence(pageIndex: Int, pageSplit: Boolean, startPos: Int): List<TextSentence> {
+
+        val res = arrayListOf<TextSentence>()
+        //匹配格式化后的图片格式
+        val senPattern: Pattern = Pattern.compile("([。，；？!,;?]|\\.(?=\\s)|!(?=\\s))" ) //""([。，；？!.,;?])") // ”：、
+        // 或者后面不是数字的英文句点 |\\.(?!\\d)
+        // 或者后面是空格的英文句点   |\\.(?=\\s)
+        // 或者后面是空格的英文感叹号  |!(?=\\s)
+
+        val stringBuilder = StringBuilder()
+        if (pages.isNotEmpty()) {
+            for (index in pageIndex..< paragraphs.size) {
+                var content =  paragraphs[index].text
+
+                val matcher = senPattern.matcher(content)
+                var start = 0
+                while (matcher.find()) {
+                    val text = content.substring(start, matcher.start()+1)
+                    // Log.d("TTS18",text )
+                    if ( text.startsWith("它的功能强大且") ){
+                        Log.d("TTS8","============" )
+                    }
+                    if (text.isNotBlank()) {
+                        // Wang Jun 添加图片
+                        var a=TextSentence(
+                            this.chapter.index,
+                            start + paragraphs[index].chapterPosition,
+                            matcher.start() + paragraphs[index].chapterPosition
+                        )
+                        a.fillTextLines(this)
+                        res.add(a)
+                    }
+
+                    start = matcher.end()
+                }
+                if (start < content.length) {
+                    val text =content.substring(start, content.length)
+                    // Log.d("TTS28",text )
+                    if ( text.startsWith("它的功能强大且") ){
+                        Log.d("TTS8","============" )
+                    }
+                    var a=TextSentence(
+                        this.chapter.index,
+                        start  + paragraphs[index].chapterPosition,
+                        content.length-1  + paragraphs[index].chapterPosition)
+                    a.fillTextLines(this)
+                    res.add(a)
+                }
+
+            }
+        }
+        return res
+
     }
 
     fun getParagraphNum(
