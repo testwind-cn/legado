@@ -43,6 +43,7 @@ import io.legado.app.model.ReadBook
 import io.legado.app.receiver.MediaButtonReceiver
 import io.legado.app.ui.book.read.ReadBookActivity
 import io.legado.app.ui.book.read.page.entities.TextChapter
+import io.legado.app.ui.book.read.page.entities.TextSentence
 import io.legado.app.utils.LogUtils
 import io.legado.app.utils.activityPendingIntent
 import io.legado.app.utils.broadcastPendingIntent
@@ -117,6 +118,7 @@ abstract class BaseReadAloudService : BaseService(),
         ReadAloudPhoneStateListener()
     }
     internal var contentList = emptyList<String>()
+    internal var sentenceList = emptyList<TextSentence>()
     internal var nowSpeak: Int = 0
     internal var readAloudNumber: Int = 0
     internal var textChapter: TextChapter? = null
@@ -240,6 +242,7 @@ abstract class BaseReadAloudService : BaseService(),
             }
             readAloudNumber = textChapter.getReadLength(pageIndex) + startPos
             readAloudByPage = getPrefBoolean(PreferKey.readAloudByPage)
+            sentenceList = textChapter.getNeedReadAloudSentence(0, readAloudByPage, 0)
             contentList = textChapter.getNeedReadAloud(0, readAloudByPage, 0)
                 .split("\n")
                 .filter { it.isNotEmpty() }
@@ -263,8 +266,25 @@ abstract class BaseReadAloudService : BaseService(),
                     pos = page.chapterPosition -
                             textChapter.paragraphs[nowSpeak].chapterPosition
                 }
+            } else {
+                nowSpeak = 0
+                val readChapterPos = startPos + (textChapter.getPage(pageIndex)?.getLine(0)?.chapterPosition?:0)
+                for ( id in sentenceList.indices) {
+                    if (  readChapterPos <= sentenceList[id].chapterIndices.last ) {
+                        nowSpeak = id
+                        break
+                    }
+                }
+
+                if ( startPos == 0 && !toLast) {
+//                pos = page.chapterPosition -
+//                        textChapter.paragraphs[nowSpeak].chapterPosition
+                    // TODO BUG-004-跳页 BUG-004 Wangjun 获取本页在本段要开始读的位置
+                    pos = page.lines.first {!it.isImage}.chapterPosition -
+                            sentenceList[nowSpeak].positionStart
+                }
             }
-            }
+
             if (toLast) {
                 toLast = false
                 readAloudNumber = textChapter.getLastParagraphPosition()
@@ -273,6 +293,9 @@ abstract class BaseReadAloudService : BaseService(),
                     if ( ! readAloudBySentence ) {
                         pos = page.chapterPosition -
                                 textChapter.paragraphs[nowSpeak].chapterPosition
+                    } else {
+                        pos = page.lines.first().chapterPosition -
+                                sentenceList[nowSpeak].positionStart
                     }
                 }
             }
