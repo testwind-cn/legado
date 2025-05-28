@@ -270,8 +270,10 @@ abstract class BaseReadAloudService : BaseService(),
                 readAloudNumber = textChapter.getLastParagraphPosition()
                 nowSpeak = contentList.lastIndex
                 if (page.paragraphs.size == 1) {
-                    pos = page.chapterPosition -
-                            textChapter.paragraphs[nowSpeak].chapterPosition
+                    if ( ! readAloudBySentence ) {
+                        pos = page.chapterPosition -
+                                textChapter.paragraphs[nowSpeak].chapterPosition
+                    }
                 }
             }
             paragraphStartPos = pos
