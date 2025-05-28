@@ -1329,6 +1329,9 @@ class ReadBookActivity : BaseReadBookActivity(),
     private fun toggleReadAloud(needStart: Boolean) {
         when {
             !BaseReadAloudService.isRun -> {
+                if ( ! needStart ) {
+                    return
+                }
                 ReadAloud.upReadAloudClass()
                 val scrollPageAnim = ReadBook.pageAnim() == 3
                 if (scrollPageAnim) {
@@ -1351,6 +1354,18 @@ class ReadBookActivity : BaseReadBookActivity(),
             }
 
             else -> ReadAloud.pause(this)
+        }
+    }
+
+    public fun setReadAloud( play :Boolean) {
+        if ( play ) {
+            if (BaseReadAloudService.isRun && BaseReadAloudService.pause) {
+                toggleReadAloud(false)
+            }
+        } else {
+            if (BaseReadAloudService.isRun && !BaseReadAloudService.pause) {
+                toggleReadAloud(false)
+            }
         }
     }
 
