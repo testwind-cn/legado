@@ -3,16 +3,6 @@ package io.legado.app.ui.book.read.page.entities
 
 import android.annotation.SuppressLint
 import androidx.annotation.Keep
-import io.legado.app.data.entities.Book
-import io.legado.app.data.entities.BookChapter
-import io.legado.app.data.entities.ReplaceRule
-import io.legado.app.help.book.BookContent
-import io.legado.app.ui.book.read.page.provider.LayoutProgressListener
-import io.legado.app.ui.book.read.page.provider.TextChapterLayout
-import io.legado.app.utils.fastBinarySearchBy
-import kotlinx.coroutines.CoroutineScope
-import kotlin.math.abs
-import kotlin.math.min
 
 /**
  * 句子信息
@@ -20,24 +10,21 @@ import kotlin.math.min
 @Keep
 @Suppress("unused")
 data class TextSentence(
-    var chapterIndex: Int = 0,
-    var positionStart: Int = 0,
-    var positionEnd: Int = 0
+    var charIndexFirstLine: Int = 0,
+    var charIndexLastLine: Int = 0
 ) {
     // val textLines: ArrayList<TextLine> = arrayListOf()
     // val firstLine: TextLine get() = textLines.first()
     // val lastLine: TextLine get() = textLines.last()
     var lineFirst: TextLine? = null
     var lineLast: TextLine? = null
-    var lineFirstIndex: Int = -1
-    var lineLastIndex: Int = -1
-    var pageFirstIndex: Int = -1
-    var pageLastIndex: Int = -1
 
-    var charIndexFirstLine: Int = 0
-    var charIndexLastLine: Int = 0
+    var testLineFirstIndex: Int = -1
+    var testLineLastIndex: Int = -1
+    var testPageFirstIndex: Int = -1
+    var testPageLastIndex: Int = -1
 
-    val chapterIndices: IntRange get() = (lineFirst?.chapterPosition?:0) + charIndexFirstLine..(lineLast?.chapterPosition?:0) + charIndexLastLine
+    val chapterIndices: IntRange get() = (lineFirst?.chapterPosition?:0) + charIndexFirstLine .. (lineLast?.chapterPosition?:0) + charIndexLastLine
     val chapterPosition: Int get() = (lineFirst?.chapterPosition?:0) + charIndexFirstLine
 
     var text: String = ""
@@ -53,27 +40,30 @@ data class TextSentence(
     */
 
     @SuppressLint("SuspiciousIndentation")
-    fun fillTextLines(chapter: TextChapter) {
+    fun fillTextLines(chapter: TextChapter, positionStart: Int = 0,
+                      positionEnd: Int = 0) {
         var textLines: ArrayList<TextLine> = arrayListOf()
         text = ""
 
-        lineFirstIndex = -1
-        lineLastIndex = -1
-        pageFirstIndex = -1
-        pageLastIndex = -1
+        testLineFirstIndex = -1
+        testLineLastIndex = -1
+        testPageFirstIndex = -1
+        testPageLastIndex = -1
 
+        // 设置 pageFirstIndex 和 lineFirstIndex
+        // 设置 pageLastIndex 和 lineLastIndex
         for ( pgIndex in chapter.pages.indices )  {
             val pg = chapter.pages[pgIndex]
             for ( lnIndex in pg.lines.indices ) {
                 val ln = pg.lines[lnIndex]
                 if (!ln.isImage && ln.chapterPosition <= positionEnd && positionStart < ln.chapterPosition + ln.charSize) {
                     textLines.add(ln)
-                    if ( pageFirstIndex < 0 ) {
-                        pageFirstIndex = pgIndex
-                        lineFirstIndex = lnIndex
+                    if ( testPageFirstIndex < 0 ) {
+                        testPageFirstIndex = pgIndex
+                        testLineFirstIndex = lnIndex
                     }
-                    pageLastIndex = pgIndex
-                    lineLastIndex = lnIndex
+                    testPageLastIndex = pgIndex
+                    testLineLastIndex = lnIndex
                 }
             }
         }
@@ -83,9 +73,12 @@ data class TextSentence(
             return;
         }
 
+        // 找到第一行和最后一行
         lineFirst = textLines.first()
         lineLast = textLines.last()
 
+        // 获取全部文字内容到 text
+        // 设置 charIndexFirstLine 和 charIndexLastLine
         for ( ln in textLines ) {
             var ss = ln.text
             if ( ln == lineLast) {
@@ -101,6 +94,7 @@ data class TextSentence(
             text += ss
         }
 
+        // 清除临时 textLines
         textLines.clear()
     }
 }
