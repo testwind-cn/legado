@@ -3,6 +3,7 @@ package io.legado.app.service
 import android.app.PendingIntent
 import android.os.Build
 import android.speech.tts.TextToSpeech
+import android.speech.tts.TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID
 import android.speech.tts.UtteranceProgressListener
 import io.legado.app.R
 import io.legado.app.constant.AppConst
@@ -95,7 +96,8 @@ class TTSReadAloudService : BaseReadAloudService(), TextToSpeech.OnInitListener 
 
         if (!ttsInitFinish) return
         if (!requestFocus()) return
-        if (contentList.isEmpty()) {
+        if (contentList.isEmpty() && ! readAloudBySentence ||
+            sentenceList.isEmpty() && readAloudBySentence) {
             AppLog.putDebug("朗读列表为空")
             ReadBook.readAloud()
             return
@@ -108,13 +110,14 @@ class TTSReadAloudService : BaseReadAloudService(), TextToSpeech.OnInitListener 
         speakJob?.cancel()
         speakJob = execute {
             LogUtils.d(TAG, "朗读列表大小 ${contentList.size}")
+            LogUtils.d(TAG, "朗读句子列表大小 ${sentenceList.size}")
             LogUtils.d(TAG, "朗读页数 ${textChapter?.pageSize}")
             val tts = textToSpeech ?: throw NoStackTraceException("tts is null")
-            val contentList = contentList
+            val contentListSize =  if ( readAloudBySentence ) sentenceList.size else contentList.size
             var isAddedText = false
-            for (i in nowSpeak until contentList.size) {
+            for (i in nowSpeak until contentListSize) {
                 ensureActive()
-                var text = contentList[i]
+                var text = if ( readAloudBySentence ) sentenceList[i].text else contentList[i]
                 if (paragraphStartPos > 0 && i == nowSpeak) {
                     text = text.substring(paragraphStartPos)
                 }
@@ -126,7 +129,9 @@ class TTSReadAloudService : BaseReadAloudService(), TextToSpeech.OnInitListener 
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                             speak(text, TextToSpeech.QUEUE_FLUSH, null, AppConst.APP_TAG + i)
                         } else {
-                            speak(text, TextToSpeech.QUEUE_FLUSH, null)
+                            var params: HashMap<String, String> = HashMap()
+                            params[KEY_PARAM_UTTERANCE_ID] = AppConst.APP_TAG + "," + i
+                            speak(text, TextToSpeech.QUEUE_FLUSH, params)
                         }
                     }.getOrElse {
                         AppLog.put("tts出错\n${it.localizedMessage}", it, true)
@@ -140,7 +145,32 @@ class TTSReadAloudService : BaseReadAloudService(), TextToSpeech.OnInitListener 
                     }
                 } else {
                     val result = tts.runCatching {
-                        speak(text, TextToSpeech.QUEUE_ADD, null, AppConst.APP_TAG + i)
+                        // speak(text, TextToSpeech.QUEUE_ADD, null, AppConst.APP_TAG + i)
+                        var tag = if ( readAloudBySentence ) {
+                            AppConst.APP_TAG +
+                                    "," + i +
+                                    "," + sentenceList[i].chapterIndex +
+                                    "," + sentenceList[i].testPageFirstIndex +
+                                    "," + sentenceList[i].testPageLastIndex +
+                                    "," + sentenceList[i].testLineFirstIndex +
+                                    "," + sentenceList[i].testLineLastIndex +
+                                    ", top1 " + ((sentenceList[i].lineFirst?.lineTop) ?: 0f) +
+                                    " top2 " + ((sentenceList[i].lineLast?.lineTop) ?: 0f) +
+                                    " First " + sentenceList[i].charIndexFirstLine +
+                                    " Last " + sentenceList[i].charIndexLastLine + " text " + text
+                        } else {
+                            AppConst.APP_TAG + i
+                        }
+
+                        AppLog.put("TTS6 : " + "QUEUE_ADD utteranceId " + tag)
+
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                            speak(text, TextToSpeech.QUEUE_ADD, null, tag)
+                        } else {
+                            var params: HashMap<String, String> = HashMap()
+                            params[KEY_PARAM_UTTERANCE_ID] = tag
+                            speak(text, TextToSpeech.QUEUE_ADD, params)
+                        }
                     }.getOrElse {
                         AppLog.put("tts出错\n${it.localizedMessage}", it, true)
                         TextToSpeech.ERROR
