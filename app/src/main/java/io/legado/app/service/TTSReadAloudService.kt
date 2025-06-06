@@ -243,14 +243,23 @@ class TTSReadAloudService : BaseReadAloudService(), TextToSpeech.OnInitListener 
         override fun onStart(s: String) {
             LogUtils.d(TAG, "onStart nowSpeak:$nowSpeak pageIndex:$pageIndex utteranceId:$s")
             textChapter?.let {
-                if (contentList[nowSpeak].matches(AppPattern.notReadAloudRegex)) {
-                    nextParagraph()
+                if ( readAloudBySentence ) {
+                    var nowSpeak2 = s.split(",").getOrNull(1)?.toInt()?:nowSpeak
+                    LogUtils.d(TAG, "TTS6 : " +  "onStart utteranceId " + s + " nowSpeak " + nowSpeak + " nowSpeak2 " + nowSpeak2)
+                    upTtsProgressSentence(
+                        textChapter?.chapter?.index?:0,
+                        (sentenceList[nowSpeak2].lineFirst?.chapterPosition?:0) + sentenceList[nowSpeak2].charIndexFirstLine ,
+                        (sentenceList[nowSpeak2].lineLast?.chapterPosition?:0) + sentenceList[nowSpeak2].charIndexLastLine )
+                } else {
+                    if (contentList[nowSpeak].matches(AppPattern.notReadAloudRegex)) {
+                        nextParagraph()
+                    }
+                    if (readAloudNumber + 1 > it.getReadLength(pageIndex + 1)) {
+                        pageIndex++
+                        ReadBook.moveToNextPage()
+                    }
+                    upTtsProgress(readAloudNumber + 1)
                 }
-                if (readAloudNumber + 1 > it.getReadLength(pageIndex + 1)) {
-                    pageIndex++
-                    ReadBook.moveToNextPage()
-                }
-                upTtsProgress(readAloudNumber + 1)
             }
         }
 
