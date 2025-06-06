@@ -369,6 +369,10 @@ abstract class BaseReadAloudService : BaseService(),
         postEvent(EventBus.TTS_PROGRESS, progress)
     }
 
+    fun upTtsProgressSentence(chapterIndex: Int, pos1: Int, pos2: Int) {
+        postEvent(EventBus.TTS_PROGRESS_SENTENCE, "$chapterIndex,$pos1,$pos2")
+    }
+
     private fun prevP() {
         if (nowSpeak > 0) {
             playStop()
