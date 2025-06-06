@@ -42,7 +42,7 @@ data class TextColumn(
             field = value
         }
 
-    override fun draw(view: ContentTextView, canvas: Canvas) {
+    override fun draw(view: ContentTextView, canvas: Canvas, isReadAloud: Boolean) {
         val textPaint = if (textLine.isTitle) {
             ChapterProvider.titlePaint
         } else {

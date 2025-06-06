@@ -16,7 +16,7 @@ data class ButtonColumn(
     override var end: Float,
 ) : BaseColumn {
     override var textLine: TextLine = emptyTextLine
-    override fun draw(view: ContentTextView, canvas: Canvas) {
+    override fun draw(view: ContentTextView, canvas: Canvas, isReadAloud: Boolean) {
 
     }
 }

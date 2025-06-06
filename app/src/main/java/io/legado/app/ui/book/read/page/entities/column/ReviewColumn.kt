@@ -20,7 +20,7 @@ data class ReviewColumn(
 ) : BaseColumn {
 
     override var textLine: TextLine = emptyTextLine
-    override fun draw(view: ContentTextView, canvas: Canvas) {
+    override fun draw(view: ContentTextView, canvas: Canvas, isReadAloud: Boolean) {
         val textPaint = if (textLine.isTitle) {
             ChapterProvider.titlePaint
         } else {

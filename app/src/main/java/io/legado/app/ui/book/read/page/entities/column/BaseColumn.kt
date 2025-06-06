@@ -12,7 +12,7 @@ interface BaseColumn {
     var end: Float
     var textLine: TextLine
 
-    fun draw(view: ContentTextView, canvas: Canvas)
+    fun draw(view: ContentTextView, canvas: Canvas, isReadAloud: Boolean = false)
 
     fun isTouch(x: Float): Boolean {
         return x > start && x < end

@@ -22,7 +22,7 @@ data class ImageColumn(
 ) : BaseColumn {
 
     override var textLine: TextLine = emptyTextLine
-    override fun draw(view: ContentTextView, canvas: Canvas) {
+    override fun draw(view: ContentTextView, canvas: Canvas, isReadAloud: Boolean) {
         val book = ReadBook.book ?: return
 
         val height = textLine.height
