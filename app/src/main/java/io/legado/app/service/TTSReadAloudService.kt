@@ -294,6 +294,31 @@ class TTSReadAloudService : BaseReadAloudService(), TextToSpeech.OnInitListener 
             } while (contentList[nowSpeak].matches(AppPattern.notReadAloudRegex))
         }
 
+        private fun nextSentence(s: String) {
+            // 以前执行读序号加1，大于列表总数后，会翻章节
+            var nowSpeak2 = s.split(",").getOrNull(1)?.toInt()?:nowSpeak
+            nowSpeak = nowSpeak2 + 1
+            LogUtils.d(
+                TAG, "TTS6 : + onDone utteranceId " + s + " nowSpeak " + nowSpeak+ " nowSpeak2 " + nowSpeak2
+            )
+            if ( nowSpeak >= sentenceList.size ) {
+                nextChapter()
+            } else {
+                /*
+                nextSentence(
+                    contentList2[nowSpeak2].chapterIndex,
+                    contentList2[nowSpeak2].pageFirstIndex,
+                    contentList2[nowSpeak2].lineFirstIndex,
+                    contentList2[nowSpeak2].pageLastIndex,
+                    contentList2[nowSpeak2].lineLastIndex,
+                    contentList2[nowSpeak2+1].chapterIndex,
+                    contentList2[nowSpeak2+1].pageFirstIndex,
+                    contentList2[nowSpeak2+1].lineFirstIndex
+                )
+                 */
+            }
+        }
+
         @Deprecated("Deprecated in Java")
         override fun onError(s: String) {
             LogUtils.d(TAG, "onError nowSpeak:$nowSpeak pageIndex:$pageIndex s:$s")
