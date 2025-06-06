@@ -39,6 +39,11 @@ data class TextChapter(
 
     val layoutChannel get() = layout!!.channel
 
+    var readAloudSentences = arrayListOf<TextSentence>()
+
+    var readAloudCurrentIndex = 0
+
+
     fun getPage(index: Int): TextPage? {
         return pages.getOrNull(index)
     }
@@ -65,6 +70,10 @@ data class TextChapter(
 
     val pageParagraphs by lazy {
         pageParagraphsInternal
+    }
+
+    val sentences by lazy {
+        sentencesInternal
     }
 
     val paragraphsInternal: ArrayList<TextParagraph>
@@ -95,6 +104,83 @@ data class TextChapter(
             }
             return paragraphs
         }
+
+    val sentencesInternal: List<TextSentence>
+        get() {
+            val sentences = generateSentencesForChapter()
+            return sentences
+        }
+
+    /**
+     * 为给定的 TextChapter 生成 TextSentence 对象列表。
+     * 这只是一个占位符实现。您需要定义如何界定句子。
+     * 例如，通过标点符号（'.'、'!'、'?'），或通过固定数量的单词/字符。
+     */
+    private fun generateSentencesForChapter(
+    ): List<TextSentence> {
+
+        //匹配格式化后的图片格式
+        val senPattern: Pattern = Pattern.compile("([。，；？!,;?]|\\.(?=\\s)|!(?=\\s))" ) //""([。，；？!.,;?])") // ”：、
+        // 或者后面不是数字的英文句点 |\\.(?!\\d)
+        // 或者后面是空格的英文句点   |\\.(?=\\s)
+        // 或者后面是空格的英文感叹号  |!(?=\\s)
+
+        val sentences = arrayListOf<TextSentence>()
+        // --- 您的句子分割逻辑放在这里 ---
+        // 这是一个非常基础的示例：它尝试根据标点符号分割句子。
+        // 您需要根据您的实际文本内容和期望的句子结构来替换和完善此逻辑。
+
+        if (pages.isNotEmpty()) {
+            for (index in 0..<paragraphs.size) {
+                var content = paragraphs[index].text
+
+                val matcher = senPattern.matcher(content)
+                var start = 0
+                while (matcher.find()) {
+                    val text = content.substring(start, matcher.start() + 1)
+                    // Log.d("TTS18",text )
+                    if (text.startsWith("它的功能强大且")) {
+                        Log.d("TTS8", "============")
+                    }
+                    if (text.isNotBlank()) {
+                        // Wang Jun 添加图片
+                        var a = TextSentence(
+                            start + paragraphs[index].chapterPosition,
+                            matcher.end() + paragraphs[index].chapterPosition
+                        )
+                        a.fillTextLines(this)
+                        sentences.add(a)
+                    }
+
+                    start = matcher.end()
+                }
+                if (start < content.length) {
+                    val text = content.substring(start, content.length)
+                    // Log.d("TTS28",text )
+                    if (text.startsWith("它的功能强大且")) {
+                        Log.d("TTS8", "============")
+                    }
+                    var a = TextSentence(
+                        start + paragraphs[index].chapterPosition,
+                        content.length + paragraphs[index].chapterPosition
+                    )
+                    a.fillTextLines(this)
+                    sentences.add(a)
+                }
+            }
+        }
+
+        // 为新生成的句子列表重置活动索引
+        if (sentences.isNotEmpty()) {
+            readAloudCurrentIndex = 0 // 默认激活第一个句子，或者设为 -1 如果默认不激活
+        } else {
+            readAloudCurrentIndex = -1
+        }
+
+        readAloudSentences = sentences
+
+        return sentences
+    }
 
     /**
      * @param index 页数
@@ -205,57 +291,24 @@ data class TextChapter(
      */
     fun getNeedReadAloudSentence(pageIndex: Int, pageSplit: Boolean, startPos: Int): List<TextSentence> {
 
-        val res = arrayListOf<TextSentence>()
-        //匹配格式化后的图片格式
-        val senPattern: Pattern = Pattern.compile("([。，；？!,;?]|\\.(?=\\s)|!(?=\\s))" ) //""([。，；？!.,;?])") // ”：、
-        // 或者后面不是数字的英文句点 |\\.(?!\\d)
-        // 或者后面是空格的英文句点   |\\.(?=\\s)
-        // 或者后面是空格的英文感叹号  |!(?=\\s)
+        var res = TextSentence.generateSentencesForChapter(this, pageIndex, startPos)
+        return res
+    }
 
-        val stringBuilder = StringBuilder()
-        if (pages.isNotEmpty()) {
-            for (index in pageIndex..< paragraphs.size) {
-                var content =  paragraphs[index].text
-
-                val matcher = senPattern.matcher(content)
-                var start = 0
-                while (matcher.find()) {
-                    val text = content.substring(start, matcher.start()+1)
-                    // Log.d("TTS18",text )
-                    if ( text.startsWith("它的功能强大且") ){
-                        Log.d("TTS8","============" )
-                    }
-                    if (text.isNotBlank()) {
-                        // Wang Jun 添加图片
-                        var a=TextSentence(
-                            this.chapter.index,
-                            start + paragraphs[index].chapterPosition,
-                            matcher.start() + paragraphs[index].chapterPosition
-                        )
-                        a.fillTextLines(this)
-                        res.add(a)
-                    }
-
-                    start = matcher.end()
-                }
-                if (start < content.length) {
-                    val text =content.substring(start, content.length)
-                    // Log.d("TTS28",text )
-                    if ( text.startsWith("它的功能强大且") ){
-                        Log.d("TTS8","============" )
-                    }
-                    var a=TextSentence(
-                        this.chapter.index,
-                        start  + paragraphs[index].chapterPosition,
-                        content.length-1  + paragraphs[index].chapterPosition)
-                    a.fillTextLines(this)
-                    res.add(a)
-                }
-
+    fun getSentenceNum(
+        position: Int
+    ): Int {
+        val sentences = getChapterSentences()
+        sentences.forEachIndexed { index, sentence ->
+            if (position in sentence.chapterIndices) {
+                return index
             }
         }
-        return res
+        return -1
+    }
 
+    fun getChapterSentences(): List<TextSentence> {
+        return if (isCompleted) sentences else sentencesInternal
     }
 
     fun getParagraphNum(

@@ -56,6 +56,8 @@ object ReadAloud {
         intent.putExtra("startPos", startPos)
         LogUtils.d("ReadAloud", intent.toString())
         try {
+            val msg = "===== 01. 启动朗读服务 ReadAloud.play -> startForegroundServiceCompat ${intent}"
+            AppLog.put(msg)
             context.startForegroundServiceCompat(intent)
         } catch (e: Exception) {
             val msg = "启动朗读服务出错\n${e.localizedMessage}"

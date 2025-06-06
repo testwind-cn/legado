@@ -1,6 +1,7 @@
 package io.legado.app.service
 
 import android.app.PendingIntent
+import android.os.Build
 import android.speech.tts.TextToSpeech
 import android.speech.tts.UtteranceProgressListener
 import io.legado.app.R
@@ -35,6 +36,8 @@ class TTSReadAloudService : BaseReadAloudService(), TextToSpeech.OnInitListener 
 
     override fun onCreate() {
         super.onCreate()
+        val msg = "===== 02. 启动朗读服务 TTSReadAloudService.onCreate "
+        AppLog.put(msg)
         initTts()
     }
 
@@ -45,6 +48,8 @@ class TTSReadAloudService : BaseReadAloudService(), TextToSpeech.OnInitListener 
 
     @Synchronized
     private fun initTts() {
+        val msg = "===== 03. 启动朗读服务 TTSReadAloudService.initTts "
+        AppLog.put(msg)
         ttsInitFinish = false
         val engine = GSON.fromJsonObject<SelectItem<String>>(ReadAloud.ttsEngine).getOrNull()?.value
         LogUtils.d(TAG, "initTts engine:$engine")
@@ -67,10 +72,15 @@ class TTSReadAloudService : BaseReadAloudService(), TextToSpeech.OnInitListener 
     }
 
     override fun onInit(status: Int) {
+        val msg = "===== 07. 启动朗读服务 TTSReadAloudService.onInit "
+        AppLog.put(msg)
         if (status == TextToSpeech.SUCCESS) {
             textToSpeech?.let {
                 it.setOnUtteranceProgressListener(ttsUtteranceListener)
                 ttsInitFinish = true
+
+                val msg = "===== 08. 启动朗读服务 TTSReadAloudService.play "
+                AppLog.put(msg)
                 play()
             }
         } else {
@@ -80,6 +90,9 @@ class TTSReadAloudService : BaseReadAloudService(), TextToSpeech.OnInitListener 
 
     @Synchronized
     override fun play() {
+        var msg = "===== 09. 启动朗读服务 TTSReadAloudService.play ${ttsInitFinish} ${contentList.size}"
+        AppLog.put(msg)
+
         if (!ttsInitFinish) return
         if (!requestFocus()) return
         if (contentList.isEmpty()) {
@@ -87,6 +100,9 @@ class TTSReadAloudService : BaseReadAloudService(), TextToSpeech.OnInitListener 
             ReadBook.readAloud()
             return
         }
+        msg = "===== 10. 启动朗读服务 TTSReadAloudService.play "
+        AppLog.put(msg)
+
         super.play()
         MediaHelp.playSilentSound(this@TTSReadAloudService)
         speakJob?.cancel()
@@ -107,7 +123,11 @@ class TTSReadAloudService : BaseReadAloudService(), TextToSpeech.OnInitListener 
                 }
                 if (!isAddedText) {
                     val result = tts.runCatching {
-                        speak(text, TextToSpeech.QUEUE_FLUSH, null, AppConst.APP_TAG + i)
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                            speak(text, TextToSpeech.QUEUE_FLUSH, null, AppConst.APP_TAG + i)
+                        } else {
+                            speak(text, TextToSpeech.QUEUE_FLUSH, null)
+                        }
                     }.getOrElse {
                         AppLog.put("tts出错\n${it.localizedMessage}", it, true)
                         TextToSpeech.ERROR

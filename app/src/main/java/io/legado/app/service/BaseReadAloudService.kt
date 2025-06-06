@@ -134,6 +134,7 @@ abstract class BaseReadAloudService : BaseService(),
     private var toLast = false
     var paragraphStartPos = 0
     var readAloudBySentence = false
+        private set
     var readAloudByPage = false
         private set
 
@@ -211,6 +212,9 @@ abstract class BaseReadAloudService : BaseService(),
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        val msg = "===== 04. 启动朗读服务 BaseReadAloudService.onStartCommand ${intent}"
+        AppLog.put(msg)
+
         when (intent?.action) {
             IntentAction.play -> newReadAloud(
                 intent.getBooleanExtra("play", true),
@@ -233,6 +237,9 @@ abstract class BaseReadAloudService : BaseService(),
     }
 
     private fun newReadAloud(play: Boolean, pageIndex: Int, startPos: Int) {
+        val msg = "===== 05. 启动朗读服务 BaseReadAloudService.newReadAloud ${play} ${pageIndex} ${startPos}"
+        AppLog.put(msg)
+
         execute(executeContext = IO) {
             this@BaseReadAloudService.pageIndex = pageIndex
             textChapter = ReadBook.curTextChapter
@@ -242,7 +249,8 @@ abstract class BaseReadAloudService : BaseService(),
             }
             readAloudNumber = textChapter.getReadLength(pageIndex) + startPos
             readAloudByPage = getPrefBoolean(PreferKey.readAloudByPage)
-            sentenceList = textChapter.getNeedReadAloudSentence(0, readAloudByPage, 0)
+            readAloudBySentence = true
+            sentenceList = textChapter.getChapterSentences()
             contentList = textChapter.getNeedReadAloud(0, readAloudByPage, 0)
                 .split("\n")
                 .filter { it.isNotEmpty() }
@@ -253,54 +261,54 @@ abstract class BaseReadAloudService : BaseService(),
                 page.lines.any { line -> !line.isImage }
             }!!
 
-            if (pos > 0) {
-                for (paragraph in page.paragraphs) {
-                    val tmp = pos - paragraph.length - 1
-                    if (tmp < 0) break
-                    pos = tmp
-                }
-            }
             if ( ! readAloudBySentence ) {
+                if (pos > 0) {
+                    for (paragraph in page.paragraphs) {
+                        val tmp = pos - paragraph.length - 1
+                        if (tmp < 0) break
+                        pos = tmp
+                        // startPos 是从本页page从0开始
+                        // 找到 startPos 位于的paragraph段落，
+                        // pos 是从开始读的paragraph段落中开始位置的字符数
+                    }
+                }
+
                 nowSpeak = textChapter.getParagraphNum(readAloudNumber + 1, readAloudByPage) - 1
                 if (!readAloudByPage && startPos == 0 && !toLast) {
                     pos = page.chapterPosition -
                             textChapter.paragraphs[nowSpeak].chapterPosition
+                    // 这个段落是首行第一句，它有部分在前一页，所以可以减出来一个pos
+                    // 表示从这段在本页的第一个字朗读
                 }
             } else {
-                nowSpeak = 0
-                val readChapterPos = startPos + (textChapter.getPage(pageIndex)?.getLine(0)?.chapterPosition?:0)
-                for ( id in sentenceList.indices) {
-                    if (  readChapterPos <= sentenceList[id].chapterIndices.last ) {
-                        nowSpeak = id
-                        break
-                    }
-                }
-
-                if ( startPos == 0 && !toLast) {
-//                pos = page.chapterPosition -
-//                        textChapter.paragraphs[nowSpeak].chapterPosition
-                    // TODO BUG-004-跳页 BUG-004 Wangjun 获取本页在本段要开始读的位置
-                    pos = page.lines.first {!it.isImage}.chapterPosition -
-                            sentenceList[nowSpeak].positionStart
-                }
+                pos = 0 // 句子总是从第一个字朗读
+                nowSpeak = textChapter.getSentenceNum(readAloudNumber)
             }
 
             if (toLast) {
+                // 本次朗读，是翻到上一章的最后一段，
                 toLast = false
                 readAloudNumber = textChapter.getLastParagraphPosition()
-                nowSpeak = contentList.lastIndex
-                if (page.paragraphs.size == 1) {
-                    if ( ! readAloudBySentence ) {
+                if ( ! readAloudBySentence ) {
+                    nowSpeak = contentList.lastIndex
+                    if (page.paragraphs.size == 1) {
+                    // 本页只有一段，那很可能本页开头不是段落开头，朗读位置不是段落的0位置
+
+                        // 从这个段落在本页的第一个字朗读
                         pos = page.chapterPosition -
                                 textChapter.paragraphs[nowSpeak].chapterPosition
-                    } else {
-                        pos = page.lines.first().chapterPosition -
-                                sentenceList[nowSpeak].positionStart
+
                     }
+                } else {
+                    // TODO 如果本页只有一段，那很可能本页开头不是段落开头，要测试下
+                    nowSpeak = textChapter.getSentenceNum(readAloudNumber)
+                    pos = 0
                 }
             }
             paragraphStartPos = pos
             launch(Main) {
+                val msg = "===== 06. 启动朗读服务 BaseReadAloudService.play ${play} ${pageIndex} ${startPos}"
+                AppLog.put(msg)
                 if (play) play() else pageChanged = true
             }
         }.onError {
@@ -310,6 +318,9 @@ abstract class BaseReadAloudService : BaseService(),
 
     @SuppressLint("WakelockTimeout")
     open fun play() {
+        val msg = "===== 11. 启动朗读服务 BaseReadAloudService.play "
+        AppLog.put(msg)
+
         if (useWakeLock) {
             wakeLock.acquire()
             wifiLock?.acquire()
