@@ -135,8 +135,7 @@ data class TextSentence(
          */
         fun generateSentencesForChapter(
             chapter: TextChapter,
-            pageIndex: Int = 0,
-            startPos: Int = 0
+            pageIndex: Int = 0
         ): List<TextSentence> {
 
             textChapter = chapter
@@ -168,7 +167,7 @@ data class TextSentence(
                             // Wang Jun 添加图片
                             var a = TextSentence(
                                 start + textChapter.paragraphs[index].chapterPosition,
-                                matcher.start() + textChapter.paragraphs[index].chapterPosition
+                                matcher.end() + textChapter.paragraphs[index].chapterPosition
                             )
                             a.fillTextLines(chapter)
                             sentences.add(a)
@@ -184,7 +183,7 @@ data class TextSentence(
                         }
                         var a = TextSentence(
                             start + textChapter.paragraphs[index].chapterPosition,
-                            content.length - 1 + textChapter.paragraphs[index].chapterPosition
+                            content.length + textChapter.paragraphs[index].chapterPosition
                         )
                         a.fillTextLines(chapter)
                         sentences.add(a)
@@ -199,6 +198,7 @@ data class TextSentence(
                 activeSentenceIndex = -1
             }
 
+            textChapter.readAloudCurrentIndex = activeSentenceIndex
             textChapter.readAloudSentences = sentences
 
             return sentences

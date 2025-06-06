@@ -107,7 +107,7 @@ data class TextChapter(
 
     val sentencesInternal: List<TextSentence>
         get() {
-            val sentences = generateSentencesForChapter()
+            val sentences = TextSentence.generateSentencesForChapter(this)
             return sentences
         }
 
@@ -118,6 +118,8 @@ data class TextChapter(
      */
     private fun generateSentencesForChapter(
     ): List<TextSentence> {
+
+        // TODO 不用了
 
         //匹配格式化后的图片格式
         val senPattern: Pattern = Pattern.compile("([。，；？!,;?]|\\.(?=\\s)|!(?=\\s))" ) //""([。，；？!.,;?])") // ”：、
@@ -148,7 +150,7 @@ data class TextChapter(
                             start + paragraphs[index].chapterPosition,
                             matcher.end() + paragraphs[index].chapterPosition
                         )
-                        a.fillTextLines(this)
+                        // a.fillTextLines(this)
                         sentences.add(a)
                     }
 
@@ -164,7 +166,7 @@ data class TextChapter(
                         start + paragraphs[index].chapterPosition,
                         content.length + paragraphs[index].chapterPosition
                     )
-                    a.fillTextLines(this)
+                    // a.fillTextLines(this)
                     sentences.add(a)
                 }
             }
@@ -281,18 +283,6 @@ data class TextChapter(
             }
         }
         return stringBuilder.substring(startPos).toString()
-    }
-
-    /**
-     * @return 需要朗读的句子列表
-     * @param pageIndex 起始页
-     * @param pageSplit 是否分页
-     * @param startPos 从当前页什么地方开始朗读
-     */
-    fun getNeedReadAloudSentence(pageIndex: Int, pageSplit: Boolean, startPos: Int): List<TextSentence> {
-
-        var res = TextSentence.generateSentencesForChapter(this, pageIndex, startPos)
-        return res
     }
 
     fun getSentenceNum(
