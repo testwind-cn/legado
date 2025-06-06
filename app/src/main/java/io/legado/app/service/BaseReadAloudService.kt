@@ -249,7 +249,7 @@ abstract class BaseReadAloudService : BaseService(),
             }
             readAloudNumber = textChapter.getReadLength(pageIndex) + startPos
             readAloudByPage = getPrefBoolean(PreferKey.readAloudByPage)
-            readAloudBySentence = false
+            readAloudBySentence = true
             sentenceList = textChapter.getChapterSentences()
             contentList = textChapter.getNeedReadAloud(0, readAloudByPage, 0)
                 .split("\n")

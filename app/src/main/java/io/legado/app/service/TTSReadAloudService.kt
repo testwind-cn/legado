@@ -126,6 +126,7 @@ class TTSReadAloudService : BaseReadAloudService(), TextToSpeech.OnInitListener 
                 }
                 if (!isAddedText) {
                     val result = tts.runCatching {
+                        AppLog.put("tts QUEUE_FLUSH " + i)
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                             speak(text, TextToSpeech.QUEUE_FLUSH, null, AppConst.APP_TAG + i)
                         } else {
