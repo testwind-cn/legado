@@ -141,8 +141,10 @@ data class TextSentence(
             textChapter = chapter
 
             //匹配格式化后的图片格式
-            val senPattern: Pattern = Pattern.compile("([。，；？!,;?]|\\.(?=\\s)|!(?=\\s))" ) //""([。，；？!.,;?])") // ”：、
-            // 或者后面不是数字的英文句点 |\\.(?!\\d)
+            // val senPattern: Pattern = Pattern.compile("([。，；？!,;?]|\\.(?=\\s)|!(?=\\s))" ) //""([。，；？!.,;?])") // 不要 ”：、
+            // 上面是包含逗号，下面不用逗号
+            val senPattern: Pattern = Pattern.compile("([。；？!;?]|\\.(?=\\s)|!(?=\\s))" ) //""([。，；？!.,;?])") // 不要  ”，,：、
+            // 或者后面不是数字的英文句点 |\\.(?!\\d) // 不要，否则会分开类似 Pattern.compile
             // 或者后面是空格的英文句点   |\\.(?=\\s)
             // 或者后面是空格的英文感叹号  |!(?=\\s)
 
