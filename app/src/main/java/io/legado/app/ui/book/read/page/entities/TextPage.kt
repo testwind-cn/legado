@@ -197,6 +197,8 @@ data class TextPage(
         hasReadAloudSpan = false
         for (i in textLines.indices) {
             textLines[i].isReadAloud = false
+            textLines[i].readAloudStart = 0
+            textLines[i].readAloudEnd = 0
         }
         return this
     }
