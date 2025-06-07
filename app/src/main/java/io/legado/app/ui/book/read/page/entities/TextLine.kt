@@ -38,6 +38,8 @@ data class TextLine(
     val isTitle: Boolean = false,
     var isParagraphEnd: Boolean = false,
     var isImage: Boolean = false,
+    var readAloudStart: Int = 0,
+    var readAloudEnd: Int = 0,
     var startX: Float = 0f,
     var indentSize: Int = 0,
     var extraLetterSpacing: Float = 0f,
