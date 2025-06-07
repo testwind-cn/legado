@@ -226,12 +226,18 @@ data class TextLine(
 
         // 选择文字
         PaintPool.recycle(paint)
+        val selCols = columns.filter { it -> ( it as TextColumn).selected }
+        if (selCols.isNotEmpty()) {
+            canvas.drawRect(selCols.first().start, height/3, selCols.last().end, height, view.selectedPaint)
+        }
+        /*
         for (i in columns.indices) {
             val column = columns[i] as TextColumn
             if (column.selected) {
                 canvas.drawRect(column.start, 0f, column.end, height, view.selectedPaint)
             }
         }
+        */
     }
 
     /**

@@ -65,7 +65,7 @@ data class TextColumn(
             canvas.drawText(charData, start, y, textPaint)
         }
         if (selected) {
-            canvas.drawRect(start, 0f, end, textLine.height, view.selectedPaint)
+            canvas.drawRect(start, /*0f*/textLine.height/3, end, textLine.height, view.selectedPaint)
         }
     }
 
