@@ -174,11 +174,8 @@ data class TextLine(
         } else {
             ChapterProvider.contentPaint
         }
-        val textColor = if (isReadAloud) {
-            ThemeStore.accentColor
-        } else {
-            ReadBookConfig.textColor
-        }
+        var textColor = ReadBookConfig.textColor
+
         if (textPaint.color != textColor) {
             textPaint.color = textColor
         }
@@ -193,7 +190,34 @@ data class TextLine(
             paint.wordSpacing = wordSpacing
         }
         val offsetX = if (atLeastApi35) letterSpacingHalf else extraLetterSpacingOffsetX
-        canvas.drawText(text, indentSize, text.length, startX + offsetX, lineBase - lineTop, paint)
+        //canvas.drawText(text, indentSize, text.length, startX + offsetX, lineBase - lineTop, paint)
+        if ( indentSize < readAloudStart ) {
+            // 前段文字，普通颜色
+            canvas.drawText(text, indentSize, readAloudStart, startX + offsetX, lineBase - lineTop,paint)
+        }
+        if ( readAloudEnd < text.length ) {
+            // 后段文字，普通颜色
+            // 计算前 start 个字符的宽度
+            val start = if (indentSize < readAloudEnd) readAloudEnd else indentSize
+            val skippedWidth = if (indentSize < readAloudEnd) paint.measureText(text, indentSize, readAloudEnd) else 0f
+
+            canvas.drawText(text, start, text.length, startX + offsetX + skippedWidth, lineBase - lineTop, paint)
+        }
+        if ( readAloudStart < readAloudEnd ) {
+            // 中段文字，醒目颜色
+            // 计算前 start 个字符的宽度
+            val start = if (readAloudStart < indentSize) indentSize else readAloudStart
+            val skippedWidth = if (indentSize < readAloudStart) paint.measureText(text, indentSize, readAloudStart) else 0f
+
+            textColor = ThemeStore.accentColor
+            if (textPaint.color != textColor) {
+                textPaint.color = textColor
+            }
+            paint.set(textPaint)
+            canvas.drawText(text, start, readAloudEnd, startX + offsetX + skippedWidth, lineBase - lineTop, paint)
+        }
+
+        // 选择文字
         PaintPool.recycle(paint)
         for (i in columns.indices) {
             val column = columns[i] as TextColumn
