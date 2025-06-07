@@ -1676,6 +1676,28 @@ class ReadBookActivity : BaseReadBookActivity(),
                 }
             }
         }
+        observeEventSticky<String>(EventBus.TTS_PROGRESS_SENTENCE) { chapterStartEnd ->
+            lifecycleScope.launch(IO) {
+                var pos = chapterStartEnd.split(",")
+                var p0 = (pos.getOrNull(0) ?: "0").toInt()
+                var p1 = (pos.getOrNull(1) ?: "0").toInt()
+                var p2 = (pos.getOrNull(2) ?: "0").toInt()
+
+                if (BaseReadAloudService.isPlay()) {
+                    var textChapter = if ((ReadBook.prevTextChapter?.chapter?.index ?: -1) == p0) {
+                        ReadBook.prevTextChapter
+                    } else if ((ReadBook.nextTextChapter?.chapter?.index ?: -1) == p0) {
+                        ReadBook.nextTextChapter
+                    } else ReadBook.curTextChapter
+                    // 检查下是在：前、后、当前，哪个章
+
+                    textChapter?.let { cp ->
+                        cp.upPageAloudSpan(p1, p2)          // 刷新朗读文字的标记
+                        upContent(resetPageOffset=false)    // 更新内容
+                    }
+                }
+            }
+        }
         observeEvent<Boolean>(PreferKey.keepLight) {
             upScreenTimeOut()
         }
