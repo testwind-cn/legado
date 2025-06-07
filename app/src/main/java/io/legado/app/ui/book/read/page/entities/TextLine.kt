@@ -159,7 +159,7 @@ data class TextLine(
             fastDrawTextLine(view, canvas)
         } else {
             for (i in columns.indices) {
-                columns[i].draw(view, canvas)
+                columns[i].draw(view, canvas, isReadAloud && i >= readAloudStart && i < readAloudEnd)
             }
         }
         if (ReadBookConfig.underline && !isImage && ReadBook.book?.isImage != true) {

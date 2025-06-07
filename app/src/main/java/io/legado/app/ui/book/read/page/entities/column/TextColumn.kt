@@ -48,7 +48,7 @@ data class TextColumn(
         } else {
             ChapterProvider.contentPaint
         }
-        val textColor = if (textLine.isReadAloud || isSearchResult) {
+        val textColor = if (isReadAloud || isSearchResult) {
             ThemeStore.accentColor
         } else {
             ReadBookConfig.textColor
