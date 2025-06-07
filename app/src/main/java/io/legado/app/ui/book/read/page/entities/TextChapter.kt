@@ -424,4 +424,26 @@ data class TextChapter(
         ).apply { isCompleted = true }
     }
 
+    fun upPageAloudSpan(p1 : Int, p2 : Int) {
+        Log.d("TTS6", "upPageAloudSpan p1 p2 " + p1 + " " + p2)
+        for (pg in pages) {
+            pg.removePageAloudSpan()
+            for (ln in pg.lines.filter { !it.isImage }) {
+                if (p1 <= ln.chapterPosition + ln.charSize - 1 && p2 >= ln.chapterPosition) {
+                    ln.isReadAloud = true
+                    ln.readAloudStart = if (p1 < ln.chapterPosition) 0 else p1 - ln.chapterPosition
+                    ln.readAloudEnd =
+                        if (p2 >= ln.chapterPosition + ln.charSize - 1) (ln.charSize - 1) else p2 - ln.chapterPosition
+                    Log.d(
+                        "TTS6",
+                        "upPageAloudSpan s1 s2 " + ln.readAloudStart + " " + ln.readAloudEnd
+                    )
+                }
+                if (ln.chapterPosition >= p2) {
+                    return
+                }
+            }
+        }
+    }
+
 }
