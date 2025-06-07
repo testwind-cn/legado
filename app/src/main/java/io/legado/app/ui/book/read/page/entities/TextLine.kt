@@ -207,6 +207,7 @@ data class TextLine(
             // 中段文字，醒目颜色
             // 计算前 start 个字符的宽度
             val start = if (readAloudStart < indentSize) indentSize else readAloudStart
+            val end = if (text.length < readAloudEnd) text.length else readAloudEnd
             val skippedWidth = if (indentSize < readAloudStart) paint.measureText(text, indentSize, readAloudStart) else 0f
 
             textColor = ThemeStore.accentColor
@@ -214,7 +215,13 @@ data class TextLine(
                 textPaint.color = textColor
             }
             paint.set(textPaint)
-            canvas.drawText(text, start, readAloudEnd, startX + offsetX + skippedWidth, lineBase - lineTop, paint)
+            if (extraLetterSpacing != 0f) {
+                paint.letterSpacing += extraLetterSpacing
+            }
+            if (wordSpacing != 0f) {
+                paint.wordSpacing = wordSpacing
+            }
+            canvas.drawText(text, start, end, startX + offsetX + skippedWidth, lineBase - lineTop, paint)
         }
 
         // 选择文字
