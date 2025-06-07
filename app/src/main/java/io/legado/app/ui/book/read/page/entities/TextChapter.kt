@@ -290,7 +290,7 @@ data class TextChapter(
     ): Int {
         val sentences = getChapterSentences()
         sentences.forEachIndexed { index, sentence ->
-            if (position in sentence.chapterIndices) {
+            if (position <= sentence.chapterPosition) {
                 return index
             }
         }
