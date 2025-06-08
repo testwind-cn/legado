@@ -307,12 +307,14 @@ class TTSReadAloudService : BaseReadAloudService(), TextToSpeech.OnInitListener 
             // 以前执行读序号加1，大于列表总数后，会翻章节
             var nowSpeak2 = s.split(",").getOrNull(1)?.toInt()?:nowSpeak
             nowSpeak = nowSpeak2 + 1
+            paragraphStartPos = 0
             LogUtils.d(
                 TAG, "TTS6 : + onDone utteranceId " + s + " nowSpeak " + nowSpeak+ " nowSpeak2 " + nowSpeak2
             )
             if ( nowSpeak >= sentenceList.size ) {
                 nextChapter()
             } else {
+                readAloudNumber = sentenceList[nowSpeak].chapterPosition
                 /*
                 nextSentence(
                     contentList2[nowSpeak2].chapterIndex,
