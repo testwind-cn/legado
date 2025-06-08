@@ -254,7 +254,7 @@ class TTSReadAloudService : BaseReadAloudService(), TextToSpeech.OnInitListener 
                     if (contentList[nowSpeak].matches(AppPattern.notReadAloudRegex)) {
                         nextParagraph()
                     }
-                    if (readAloudNumber + 1 > it.getReadLength(pageIndex + 1)) {
+                    if (readAloudNumber >= it.getReadLength(pageIndex + 1)) {
                         pageIndex++
                         ReadBook.moveToNextPage()
                     }

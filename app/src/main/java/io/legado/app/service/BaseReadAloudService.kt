@@ -274,6 +274,8 @@ abstract class BaseReadAloudService : BaseService(),
                 }
 
                 nowSpeak = textChapter.getParagraphNum(readAloudNumber + 1, readAloudByPage) - 1
+                // 这里没必要用 readAloudNumber + 1 , 修改 getParagraphNum 里的in , 改成 >=
+                // 全部 upTtsProgress(readAloudNumber + 1) 也没必要 + 1
                 if (!readAloudByPage && startPos == 0 && !toLast) {
                     pos = page.chapterPosition -
                             textChapter.paragraphs[nowSpeak].chapterPosition
