@@ -265,6 +265,10 @@ class TTSReadAloudService : BaseReadAloudService(), TextToSpeech.OnInitListener 
 
         override fun onDone(s: String) {
             LogUtils.d(TAG, "onDone utteranceId:$s")
+            if ( readAloudBySentence ) {
+                nextSentence(s)
+                return
+            }
             nextParagraph()
         }
 
@@ -287,6 +291,10 @@ class TTSReadAloudService : BaseReadAloudService(), TextToSpeech.OnInitListener 
                 TAG,
                 "onError nowSpeak:$nowSpeak pageIndex:$pageIndex utteranceId:$utteranceId errorCode:$errorCode"
             )
+            if ( readAloudBySentence ) {
+                nextSentence(utteranceId ?: "")
+                return
+            }
             nextParagraph()
         }
 
@@ -333,6 +341,10 @@ class TTSReadAloudService : BaseReadAloudService(), TextToSpeech.OnInitListener 
         @Deprecated("Deprecated in Java")
         override fun onError(s: String) {
             LogUtils.d(TAG, "onError nowSpeak:$nowSpeak pageIndex:$pageIndex s:$s")
+            if ( readAloudBySentence ) {
+                nextSentence(s)
+                return
+            }
             nextParagraph()
         }
 
