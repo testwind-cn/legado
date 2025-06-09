@@ -1718,6 +1718,35 @@ class ReadBookActivity : BaseReadBookActivity(),
         }
     }
 
+    private fun getLinePos(chapterIndex: Int, pageIndex: Int, lineIndex: Int, useTop: Boolean ):Float {
+        val curPage = binding.readView.curPage
+        val curChapterIndex = binding.readView.pageFactory.curPage.chapterIndex
+        val curPageIndex = binding.readView.pageFactory.curPageIndex()
+
+        var linePos:Float = when {
+            chapterIndex < curChapterIndex ->    // 当前章前面的
+                curPage.relativeOffset(0)                  // 当前页的
+            chapterIndex > curChapterIndex ->    // 当前章后面的
+                curPage.relativeOffset(2) + curPage.relativePage(2).height                  // 下下页的
+            pageIndex < curPageIndex ->        // 在当前章，当前页之前的页
+                curPage.relativeOffset(0)                  // 用当前页的开始
+            pageIndex > curPageIndex + 2 ->    // 在当前章，当前页之后3页？？
+                curPage.relativeOffset(2) + curPage.relativePage(2).height                  // 下下页的
+            pageIndex == curPageIndex ->       // 在当前章，当前页的页
+                curPage.relativeOffset(0) +                 // 用当前页的开始+第一行的顶部
+                        if ( useTop ) curPage.relativePage(0).getLine(lineIndex).lineTop else curPage.relativePage(0).getLine(lineIndex).lineBottom
+            pageIndex == curPageIndex + 1 ->   // 在当前章，当前页的下1页
+                curPage.relativeOffset(1) +                       // 用当前页下1页的开始+第一行的顶部
+                        if ( useTop ) curPage.relativePage(1).getLine(lineIndex).lineTop else curPage.relativePage(1).getLine(lineIndex).lineBottom
+            pageIndex == curPageIndex + 2 ->   // 在当前章，当前页的下2页
+                curPage.relativeOffset(2) +             // 用当前页下2页的开始+第一行的顶部
+                        if ( useTop ) curPage.relativePage(2).getLine(lineIndex).lineTop else curPage.relativePage(2).getLine(lineIndex).lineBottom
+            else -> if ( useTop ) Float.MAX_VALUE else Float.MIN_VALUE
+        }
+
+        return linePos
+    }
+
     private fun upScreenTimeOut() {
         val keepLightPrefer = getPrefString(PreferKey.keepLight)?.toInt() ?: 0
         screenTimeOut = keepLightPrefer * 1000L
