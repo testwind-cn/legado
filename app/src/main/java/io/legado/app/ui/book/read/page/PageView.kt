@@ -461,6 +461,10 @@ class PageView(context: Context) : FrameLayout(context) {
         return binding.contentTextView.createBookmark()
     }
 
+    fun relativeOffset(relativePos: Int): Float {
+        return binding.contentTextView.relativeOffset(relativePos)
+    }
+
     fun relativePage(relativePagePos: Int): TextPage {
         return binding.contentTextView.relativePage(relativePagePos)
     }

@@ -650,7 +650,7 @@ class ContentTextView(context: Context, attrs: AttributeSet?) : View(context, at
         return null
     }
 
-    private fun relativeOffset(relativePos: Int): Float {
+    fun relativeOffset(relativePos: Int): Float {
         return when (relativePos) {
             0 -> pageOffset.toFloat()
             1 -> pageOffset + textPage.height
