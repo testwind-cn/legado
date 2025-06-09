@@ -244,7 +244,22 @@ class TTSReadAloudService : BaseReadAloudService(), TextToSpeech.OnInitListener 
             LogUtils.d(TAG, "onStart nowSpeak:$nowSpeak pageIndex:$pageIndex utteranceId:$s")
             textChapter?.let {
                 if ( readAloudBySentence ) {
+                    val readAloudNumberOld = readAloudNumber
                     var nowSpeak2 = s.split(",").getOrNull(1)?.toInt()?:nowSpeak
+                    nowSpeak = nowSpeak2
+                    readAloudNumber = sentenceList[nowSpeak].chapterPosition
+
+                    // 只有原来朗读位置，在当前下。新一句位置大于等于下页，才翻页
+                    // 如果下页是图片，下句是在下下页，这时只翻了一页，图片也能被显示一句
+                    if (readAloudNumberOld >= it.getReadLength(pageIndex)
+                        && readAloudNumberOld < it.getReadLength(pageIndex + 1)
+                        && readAloudNumber >= it.getReadLength(pageIndex + 1)
+                        ) {
+                        pageIndex++
+                        ReadBook.moveToNextPage()
+                    }
+
+
                     LogUtils.d(TAG, "TTS6 : " +  "onStart utteranceId " + s + " nowSpeak " + nowSpeak + " nowSpeak2 " + nowSpeak2)
                     upTtsProgressSentence(
                         textChapter?.chapter?.index?:0,
