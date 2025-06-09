@@ -375,6 +375,24 @@ abstract class BaseReadAloudService : BaseService(),
         postEvent(EventBus.TTS_PROGRESS_SENTENCE, "$chapterIndex,$pos1,$pos2")
     }
 
+    fun upTtsProgressPage() {
+        // TTS_PROGRESS_PAGE 向上翻页
+        val bundle = Bundle().apply {
+            putString("state", "onDone")
+            putInt("chapterIndex0", sentenceList[nowSpeak-1].chapterIndex,)
+            putInt("pageIndexFirst0", sentenceList[nowSpeak-1].pageIndexFirst)
+            putInt("lineIndexFirst0",sentenceList[nowSpeak-1].lineIndexFirst)
+            putInt("pageIndexLast0",sentenceList[nowSpeak-1].pageIndexLast)
+            putInt("lineIndexLast0",sentenceList[nowSpeak-1].lineIndexLast)
+            putInt("chapterIndex1",sentenceList[nowSpeak].chapterIndex)
+            putInt("pageIndexFirst1",sentenceList[nowSpeak].pageIndexFirst)
+            putInt("lineIndexFirst1",sentenceList[nowSpeak].lineIndexFirst)
+            putInt("pageIndexLast1",sentenceList[nowSpeak].pageIndexLast)
+            putInt("lineIndexLast1",sentenceList[nowSpeak].lineIndexLast)
+        }
+        postEvent(EventBus.TTS_PROGRESS_PAGE, bundle)   // 滚动翻页
+    }
+
     private fun prevP() {
         if (nowSpeak > 0) {
             playStop()
