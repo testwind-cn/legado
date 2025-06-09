@@ -148,6 +148,19 @@ class ScrollPageDelegate(readView: ReadView) : PageDelegate(readView) {
         startScroll(0, 0, 0, calcPrevPageOffset(), animationSpeed)
     }
 
+    fun scrollPageByAnim(offset: Int, animationSpeed: Int) {
+        if (readView.isAbortAnim) {
+            readView.isAbortAnim = false
+            return
+        }
+        if (noAnim) {
+            curPage.scroll(offset)
+            return
+        }
+        readView.setStartPoint(0f, 0f, false)
+        startScroll(0, 0, 0, offset, animationSpeed)
+    }
+
     /**
      * 计算点击翻页保留一行的滚动距离
      * 图片页使用可视高度作为滚动距离
