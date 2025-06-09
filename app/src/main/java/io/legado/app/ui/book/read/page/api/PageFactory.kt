@@ -10,6 +10,8 @@ abstract class PageFactory<DATA>(protected val dataSource: DataSource) {
 
     abstract fun moveToPrev(upContent: Boolean): Boolean
 
+    fun curPageIndex(): Int = dataSource.pageIndex
+
     abstract val nextPage: DATA
 
     abstract val prevPage: DATA
