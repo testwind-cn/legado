@@ -151,14 +151,14 @@ class TTSReadAloudService : BaseReadAloudService(), TextToSpeech.OnInitListener 
                             AppConst.APP_TAG +
                                     "," + i +
                                     "," + sentenceList[i].chapterIndex +
-                                    "," + sentenceList[i].testPageFirstIndex +
-                                    "," + sentenceList[i].testPageLastIndex +
-                                    "," + sentenceList[i].testLineFirstIndex +
-                                    "," + sentenceList[i].testLineLastIndex +
+                                    "," + sentenceList[i].pageIndexFirst +
+                                    "," + sentenceList[i].pageIndexLast +
+                                    "," + sentenceList[i].lineIndexFirst +
+                                    "," + sentenceList[i].lineIndexLast +
                                     ", top1 " + ((sentenceList[i].lineFirst?.lineTop) ?: 0f) +
                                     " top2 " + ((sentenceList[i].lineLast?.lineTop) ?: 0f) +
-                                    " First " + sentenceList[i].charIndexFirstLine +
-                                    " Last " + sentenceList[i].charIndexLastLine + " text " + text
+                                    " First " + sentenceList[i].charIndexLineFirst +
+                                    " Last " + sentenceList[i].charIndexLineLast + " text " + text
                         } else {
                             AppConst.APP_TAG + i
                         }
@@ -263,8 +263,8 @@ class TTSReadAloudService : BaseReadAloudService(), TextToSpeech.OnInitListener 
                     LogUtils.d(TAG, "TTS6 : " +  "onStart utteranceId " + s + " nowSpeak " + nowSpeak + " nowSpeak2 " + nowSpeak2)
                     upTtsProgressSentence(
                         textChapter?.chapter?.index?:0,
-                        (sentenceList[nowSpeak2].lineFirst?.chapterPosition?:0) + sentenceList[nowSpeak2].charIndexFirstLine ,
-                        (sentenceList[nowSpeak2].lineLast?.chapterPosition?:0) + sentenceList[nowSpeak2].charIndexLastLine )
+                        (sentenceList[nowSpeak2].lineFirst?.chapterPosition?:0) + sentenceList[nowSpeak2].charIndexLineFirst ,
+                        (sentenceList[nowSpeak2].lineLast?.chapterPosition?:0) + sentenceList[nowSpeak2].charIndexLineLast )
                 } else {
                     if (contentList[nowSpeak].matches(AppPattern.notReadAloudRegex)) {
                         nextParagraph()
