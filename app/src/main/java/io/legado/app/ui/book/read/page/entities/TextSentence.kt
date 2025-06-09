@@ -1,7 +1,6 @@
 package io.legado.app.ui.book.read.page.entities
 
 
-import android.annotation.SuppressLint
 import android.util.Log
 import androidx.annotation.Keep
 import io.legado.app.ui.book.read.page.entities.TextChapter.Companion.emptyTextChapter
@@ -24,16 +23,16 @@ data class TextSentence(
     var lineFirst: TextLine? = null
     var lineLast: TextLine? = null
 
-    var testLineFirstIndex: Int = -1
-    var testLineLastIndex: Int = -1
-    var testPageFirstIndex: Int = -1
-    var testPageLastIndex: Int = -1
+    var lineIndexFirst: Int = -1
+    var lineIndexLast: Int = -1
+    var pageIndexFirst: Int = -1
+    var pageIndexLast: Int = -1
 
-    var charIndexFirstLine: Int = 0  // 第一行，从第几个字符
-    var charIndexLastLine: Int = 0  // 最后行，到第几个字符
+    var charIndexLineFirst: Int = 0  // 第一行，从第几个字符
+    var charIndexLineLast: Int = 0  // 最后行，到第几个字符
 
-    val chapterIndices: IntRange get() = (lineFirst?.chapterPosition?:0) + charIndexFirstLine .. (lineLast?.chapterPosition?:0) + charIndexLastLine
-    val chapterPosition: Int get() = (lineFirst?.chapterPosition?:0) + charIndexFirstLine
+    val chapterIndices: IntRange get() = (lineFirst?.chapterPosition?:0) + charIndexLineFirst .. (lineLast?.chapterPosition?:0) + charIndexLineLast
+    val chapterPosition: Int get() = (lineFirst?.chapterPosition?:0) + charIndexLineFirst
 
     var text: String = ""
     /*
@@ -56,10 +55,10 @@ data class TextSentence(
 
         text = ""
 
-        testLineFirstIndex = -1
-        testLineLastIndex = -1
-        testPageFirstIndex = -1
-        testPageLastIndex = -1
+        lineIndexFirst = -1
+        lineIndexLast = -1
+        pageIndexFirst = -1
+        pageIndexLast = -1
 
         // 设置 pageFirstIndex 和 lineFirstIndex
         // 设置 pageLastIndex 和 lineLastIndex
@@ -75,12 +74,12 @@ data class TextSentence(
                 curChapterPosition = ln.chapterPosition
                 if (curChapterPosition <= positionEnd && positionStart < curChapterPosition+ ln.charSize) {
                     textLines.add(ln)
-                    if ( testPageFirstIndex < 0 ) {
-                        testPageFirstIndex = pgIndex
-                        testLineFirstIndex = lnIndex
+                    if ( pageIndexFirst < 0 ) {
+                        pageIndexFirst = pgIndex
+                        lineIndexFirst = lnIndex
                     }
-                    testPageLastIndex = pgIndex
-                    testLineLastIndex = lnIndex
+                    pageIndexLast = pgIndex
+                    lineIndexLast = lnIndex
                 }
                 if ( curChapterPosition > positionEnd )
                     break;
@@ -104,14 +103,14 @@ data class TextSentence(
         for ( ln in textLines ) {
             var ss = ln.text
             if ( ln == lineLast) {
-                charIndexLastLine = positionEnd - ln.chapterPosition
-                if ( charIndexLastLine < ss.length )
-                    ss = ss.substring(0,  charIndexLastLine)
+                charIndexLineLast = positionEnd - ln.chapterPosition
+                if ( charIndexLineLast < ss.length )
+                    ss = ss.substring(0,  charIndexLineLast)
             }
             if ( ln == lineFirst) {
-                charIndexFirstLine = positionStart - ln.chapterPosition
-                if ( charIndexFirstLine >=0 && charIndexFirstLine < ss.length )
-                    ss = ss.substring(charIndexFirstLine)
+                charIndexLineFirst = positionStart - ln.chapterPosition
+                if ( charIndexLineFirst >=0 && charIndexLineFirst < ss.length )
+                    ss = ss.substring(charIndexLineFirst)
             }
             text += ss
         }
