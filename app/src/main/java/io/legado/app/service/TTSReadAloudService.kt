@@ -2,6 +2,7 @@ package io.legado.app.service
 
 import android.app.PendingIntent
 import android.os.Build
+import android.os.Bundle
 import android.speech.tts.TextToSpeech
 import android.speech.tts.TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID
 import android.speech.tts.UtteranceProgressListener
@@ -9,6 +10,7 @@ import io.legado.app.R
 import io.legado.app.constant.AppConst
 import io.legado.app.constant.AppLog
 import io.legado.app.constant.AppPattern
+import io.legado.app.constant.EventBus
 import io.legado.app.exception.NoStackTraceException
 import io.legado.app.help.MediaHelp
 import io.legado.app.help.config.AppConfig
@@ -19,6 +21,7 @@ import io.legado.app.model.ReadBook
 import io.legado.app.utils.GSON
 import io.legado.app.utils.LogUtils
 import io.legado.app.utils.fromJsonObject
+import io.legado.app.utils.postEvent
 import io.legado.app.utils.servicePendingIntent
 import io.legado.app.utils.toastOnUi
 import kotlinx.coroutines.delay
@@ -258,6 +261,22 @@ class TTSReadAloudService : BaseReadAloudService(), TextToSpeech.OnInitListener 
                         pageIndex++
                         ReadBook.moveToNextPage()
                     }
+
+                    // TTS_PROGRESS_PAGE 向上翻页
+                    val bundle = Bundle().apply {
+                        putString("state", "onDone")
+                        putInt("chapterIndex0", sentenceList[nowSpeak-1].chapterIndex,)
+                        putInt("pageIndexFirst0", sentenceList[nowSpeak-1].pageIndexFirst)
+                        putInt("lineIndexFirst0",sentenceList[nowSpeak-1].lineIndexFirst)
+                        putInt("pageIndexLast0",sentenceList[nowSpeak-1].pageIndexLast)
+                        putInt("lineIndexLast0",sentenceList[nowSpeak-1].lineIndexLast)
+                        putInt("chapterIndex1",sentenceList[nowSpeak].chapterIndex)
+                        putInt("pageIndexFirst1",sentenceList[nowSpeak].pageIndexFirst)
+                        putInt("lineIndexFirst1",sentenceList[nowSpeak].lineIndexFirst)
+                        putInt("pageIndexLast1",sentenceList[nowSpeak].pageIndexLast)
+                        putInt("lineIndexLast1",sentenceList[nowSpeak].lineIndexLast)
+                    }
+                    postEvent(EventBus.TTS_PROGRESS_PAGE, bundle)   // 滚动翻页
 
 
                     LogUtils.d(TAG, "TTS6 : " +  "onStart utteranceId " + s + " nowSpeak " + nowSpeak + " nowSpeak2 " + nowSpeak2)
