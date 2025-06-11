@@ -748,6 +748,8 @@ abstract class BaseReadAloudService : BaseService(),
         AppLog.putDebug("${ReadBook.curTextChapter?.chapter?.title} 朗读结束跳转下一章并朗读")
         if (!ReadBook.moveToNextChapter(true)) {
             stopSelf()
+        } else {
+            newReadAloud(true, ReadBook.durPageIndex, 0)
         }
     }
 
