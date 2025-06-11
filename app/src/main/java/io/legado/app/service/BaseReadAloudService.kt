@@ -396,6 +396,8 @@ abstract class BaseReadAloudService : BaseService(),
 
     fun upTtsProgressPage() {
         // TTS_PROGRESS_PAGE 向上翻页
+        if ( nowSpeak <= 0 )
+            return
         val bundle = Bundle().apply {
             putString("state", "onDone")
             putInt("chapterIndex0", sentenceList[nowSpeak-1].chapterIndex,)
