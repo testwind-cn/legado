@@ -9,6 +9,7 @@ import io.legado.app.R
 import io.legado.app.constant.AppConst
 import io.legado.app.constant.AppLog
 import io.legado.app.constant.AppPattern
+import io.legado.app.constant.PageAnim
 import io.legado.app.exception.NoStackTraceException
 import io.legado.app.help.MediaHelp
 import io.legado.app.help.config.AppConfig
@@ -251,17 +252,21 @@ class TTSReadAloudService : BaseReadAloudService(), TextToSpeech.OnInitListener 
                     nowSpeak = nowSpeak2
                     readAloudNumber = sentenceList[nowSpeak].chapterPosition
 
-                    // 只有原来朗读位置，在当前下。新一句位置大于等于下页，才翻页
-                    // 如果下页是图片，下句是在下下页，这时只翻了一页，图片也能被显示一句
-                    if (readAloudNumberOld >= it.getReadLength(pageIndex)
-                        && readAloudNumberOld < it.getReadLength(pageIndex + 1)
-                        && readAloudNumber >= it.getReadLength(pageIndex + 1)
+                    if ( ReadBook.pageAnim() == PageAnim.scrollPageAnim ) {
+                        upTtsProgressPage()
+                    } else {
+
+                        // 只有原来朗读位置，在当前下。新一句位置大于等于下页，才翻页
+                        // 如果下页是图片，下句是在下下页，这时只翻了一页，图片也能被显示一句
+                        if (readAloudNumberOld >= it.getReadLength(pageIndex)
+                            && readAloudNumberOld < it.getReadLength(pageIndex + 1)
+                            && readAloudNumber >= it.getReadLength(pageIndex + 1)
                         ) {
-                        pageIndex++
-                        ReadBook.moveToNextPage()
+                            pageIndex++
+                            ReadBook.moveToNextPage()
+                        }
                     }
 
-                    upTtsProgressPage()
 
 
 
