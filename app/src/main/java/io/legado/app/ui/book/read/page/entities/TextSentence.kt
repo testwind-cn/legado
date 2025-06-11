@@ -1,9 +1,9 @@
 package io.legado.app.ui.book.read.page.entities
 
 
-import android.util.Log
 import androidx.annotation.Keep
 import io.legado.app.ui.book.read.page.entities.TextChapter.Companion.emptyTextChapter
+import io.legado.app.utils.LogUtils
 import java.util.regex.Pattern
 
 /**
@@ -160,9 +160,9 @@ data class TextSentence(
                     var start = 0
                     while (matcher.find()) {
                         val text = content.substring(start, matcher.start() + 1)
-                        // Log.d("TTS18",text )
+                        // LogUtils.d("TTS18",text )
                         if (text.startsWith("它的功能强大且")) {
-                            Log.d("TTS8", "============")
+                            LogUtils.d("TTS8", "============")
                         }
                         if (text.isNotBlank()) {
                             // Wang Jun 添加图片
@@ -178,9 +178,9 @@ data class TextSentence(
                     }
                     if (start < content.length) {
                         val text = content.substring(start, content.length)
-                        // Log.d("TTS28",text )
+                        // LogUtils.d("TTS28",text )
                         if (text.startsWith("它的功能强大且")) {
-                            Log.d("TTS8", "============")
+                            LogUtils.d("TTS8", "============")
                         }
                         var a = TextSentence(
                             start + textChapter.paragraphs[index].chapterPosition,

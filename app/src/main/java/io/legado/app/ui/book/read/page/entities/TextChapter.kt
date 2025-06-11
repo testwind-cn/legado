@@ -1,14 +1,15 @@
 package io.legado.app.ui.book.read.page.entities
 
 
-import android.util.Log
 import androidx.annotation.Keep
+import io.legado.app.constant.AppLog
 import io.legado.app.data.entities.Book
 import io.legado.app.data.entities.BookChapter
 import io.legado.app.data.entities.ReplaceRule
 import io.legado.app.help.book.BookContent
 import io.legado.app.ui.book.read.page.provider.LayoutProgressListener
 import io.legado.app.ui.book.read.page.provider.TextChapterLayout
+import io.legado.app.utils.LogUtils
 import io.legado.app.utils.fastBinarySearchBy
 import kotlinx.coroutines.CoroutineScope
 import java.util.regex.Pattern
@@ -142,7 +143,7 @@ data class TextChapter(
                     val text = content.substring(start, matcher.start() + 1)
                     // Log.d("TTS18",text )
                     if (text.startsWith("它的功能强大且")) {
-                        Log.d("TTS8", "============")
+                        AppLog.putDebug("TTS8 ============")
                     }
                     if (text.isNotBlank()) {
                         // Wang Jun 添加图片
@@ -158,9 +159,9 @@ data class TextChapter(
                 }
                 if (start < content.length) {
                     val text = content.substring(start, content.length)
-                    // Log.d("TTS28",text )
+                    // LogUtils.d("TTS28",text )
                     if (text.startsWith("它的功能强大且")) {
-                        Log.d("TTS8", "============")
+                        AppLog.putDebug("TTS8 ============")
                     }
                     var a = TextSentence(
                         start + paragraphs[index].chapterPosition,
@@ -425,7 +426,7 @@ data class TextChapter(
     }
 
     fun upPageAloudSpan(p1 : Int, p2 : Int) {
-        Log.d("TTS6", "upPageAloudSpan p1 p2 " + p1 + " " + p2)
+        AppLog.putDebug("TTS6 upPageAloudSpan p1 p2 " + p1 + " " + p2)
         for (pg in pages) {
             pg.removePageAloudSpan()
             for (ln in pg.lines.filter { !it.isImage }) {
@@ -434,9 +435,8 @@ data class TextChapter(
                     ln.readAloudStart = if (p1 < ln.chapterPosition) 0 else p1 - ln.chapterPosition
                     ln.readAloudEnd =
                         if (p2 >= ln.chapterPosition + ln.charSize) (ln.charSize) else p2 - ln.chapterPosition
-                    Log.d(
-                        "TTS6",
-                        "upPageAloudSpan s1 s2 " + ln.readAloudStart + " " + ln.readAloudEnd
+                    AppLog.putDebug(
+                        "TTS6 upPageAloudSpan index s1 s2 " + pg.chapterIndex  + " " + pg.index  + " " + ln.isReadAloud  + " " + ln.readAloudStart + " " + ln.readAloudEnd + " " + ln.text
                     )
                 }
                 if (ln.chapterPosition >= p2) {

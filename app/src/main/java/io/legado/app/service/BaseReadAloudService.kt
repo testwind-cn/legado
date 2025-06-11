@@ -310,7 +310,7 @@ abstract class BaseReadAloudService : BaseService(),
             paragraphStartPos = pos
             launch(Main) {
                 val msg = "===== 06. 启动朗读服务 BaseReadAloudService.play ${play} ${pageIndex} ${startPos}"
-                AppLog.put(msg)
+                AppLog.putDebug(msg)
                 if (play) play() else pageChanged = true
             }
         }.onError {
@@ -321,7 +321,7 @@ abstract class BaseReadAloudService : BaseService(),
     @SuppressLint("WakelockTimeout")
     open fun play() {
         val msg = "===== 11. 启动朗读服务 BaseReadAloudService.play "
-        AppLog.put(msg)
+        AppLog.putDebug(msg)
 
         if (useWakeLock) {
             wakeLock.acquire()

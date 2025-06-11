@@ -4,7 +4,9 @@ import android.annotation.SuppressLint
 import android.graphics.Canvas
 import android.graphics.Paint.FontMetrics
 import android.os.Build
+import android.util.Log
 import androidx.annotation.Keep
+import io.legado.app.constant.AppLog
 import io.legado.app.help.PaintPool
 import io.legado.app.help.book.isImage
 import io.legado.app.help.config.AppConfig
@@ -155,6 +157,11 @@ data class TextLine(
     }
 
     private fun drawTextLine(view: ContentTextView, canvas: Canvas) {
+        AppLog.putDebug("TTS6-8 s " +
+                " isReadAloud " + this.isReadAloud +
+                " readAloudStart " + this.readAloudStart +
+                " readAloudEnd " + this.readAloudEnd +
+                " text " + this.text )
         if (checkFastDraw()) {
             fastDrawTextLine(view, canvas)
         } else {

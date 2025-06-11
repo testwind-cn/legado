@@ -8,6 +8,7 @@ import android.text.StaticLayout
 import androidx.annotation.Keep
 import androidx.core.graphics.withTranslation
 import io.legado.app.R
+import io.legado.app.constant.AppLog
 import io.legado.app.help.PaintPool
 import io.legado.app.help.config.AppConfig
 import io.legado.app.help.config.ReadBookConfig
@@ -191,6 +192,8 @@ data class TextPage(
      * 移除朗读标志
      */
     fun removePageAloudSpan(): TextPage {
+        AppLog.putDebug("TTS6 upPageAloudSpan removePageAloudSpan " + chapterIndex  + " " + index )
+
         if (!hasReadAloudSpan) {
             return this
         }

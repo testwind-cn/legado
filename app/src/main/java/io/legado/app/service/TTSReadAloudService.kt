@@ -38,7 +38,7 @@ class TTSReadAloudService : BaseReadAloudService(), TextToSpeech.OnInitListener 
     override fun onCreate() {
         super.onCreate()
         val msg = "===== 02. 启动朗读服务 TTSReadAloudService.onCreate "
-        AppLog.put(msg)
+        AppLog.putDebug(msg)
         initTts()
     }
 
@@ -50,7 +50,7 @@ class TTSReadAloudService : BaseReadAloudService(), TextToSpeech.OnInitListener 
     @Synchronized
     private fun initTts() {
         val msg = "===== 03. 启动朗读服务 TTSReadAloudService.initTts "
-        AppLog.put(msg)
+        AppLog.putDebug(msg)
         ttsInitFinish = false
         val engine = GSON.fromJsonObject<SelectItem<String>>(ReadAloud.ttsEngine).getOrNull()?.value
         LogUtils.d(TAG, "initTts engine:$engine")
@@ -74,14 +74,14 @@ class TTSReadAloudService : BaseReadAloudService(), TextToSpeech.OnInitListener 
 
     override fun onInit(status: Int) {
         val msg = "===== 07. 启动朗读服务 TTSReadAloudService.onInit "
-        AppLog.put(msg)
+        AppLog.putDebug(msg)
         if (status == TextToSpeech.SUCCESS) {
             textToSpeech?.let {
                 it.setOnUtteranceProgressListener(ttsUtteranceListener)
                 ttsInitFinish = true
 
                 val msg = "===== 08. 启动朗读服务 TTSReadAloudService.play "
-                AppLog.put(msg)
+                AppLog.putDebug(msg)
                 play()
             }
         } else {
@@ -92,7 +92,7 @@ class TTSReadAloudService : BaseReadAloudService(), TextToSpeech.OnInitListener 
     @Synchronized
     override fun play() {
         var msg = "===== 09. 启动朗读服务 TTSReadAloudService.play ${ttsInitFinish} ${contentList.size}"
-        AppLog.put(msg)
+        AppLog.putDebug(msg)
 
         if (!ttsInitFinish) return
         if (!requestFocus()) return
@@ -103,7 +103,7 @@ class TTSReadAloudService : BaseReadAloudService(), TextToSpeech.OnInitListener 
             return
         }
         msg = "===== 10. 启动朗读服务 TTSReadAloudService.play "
-        AppLog.put(msg)
+        AppLog.putDebug(msg)
 
         super.play()
         MediaHelp.playSilentSound(this@TTSReadAloudService)
@@ -126,7 +126,7 @@ class TTSReadAloudService : BaseReadAloudService(), TextToSpeech.OnInitListener 
                 }
                 if (!isAddedText) {
                     val result = tts.runCatching {
-                        AppLog.put("tts QUEUE_FLUSH " + i)
+                        AppLog.putDebug("tts QUEUE_FLUSH " + i)
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                             speak(text, TextToSpeech.QUEUE_FLUSH, null, AppConst.APP_TAG + i)
                         } else {
@@ -163,7 +163,7 @@ class TTSReadAloudService : BaseReadAloudService(), TextToSpeech.OnInitListener 
                             AppConst.APP_TAG + i
                         }
 
-                        AppLog.put("TTS6 : " + "QUEUE_ADD utteranceId " + tag)
+                        AppLog.putDebug("TTS6 : " + "QUEUE_ADD utteranceId " + tag)
 
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                             speak(text, TextToSpeech.QUEUE_ADD, null, tag)
@@ -241,7 +241,7 @@ class TTSReadAloudService : BaseReadAloudService(), TextToSpeech.OnInitListener 
         private val TAG = "TTSUtteranceListener"
 
         override fun onStart(s: String) {
-            LogUtils.d(TAG, "onStart nowSpeak:$nowSpeak pageIndex:$pageIndex utteranceId:$s")
+            AppLog.putDebug(TAG + " onStart nowSpeak:$nowSpeak pageIndex:$pageIndex utteranceId:$s")
             textChapter?.let {
                 if ( readAloudBySentence ) {
                     val readAloudNumberOld = readAloudNumber
@@ -262,7 +262,8 @@ class TTSReadAloudService : BaseReadAloudService(), TextToSpeech.OnInitListener 
                     upTtsProgressPage()
 
 
-                    LogUtils.d(TAG, "TTS6 : " +  "onStart utteranceId " + s + " nowSpeak " + nowSpeak + " nowSpeak2 " + nowSpeak2)
+
+                    AppLog.putDebug(TAG + " TTS6 : " +  "onStart utteranceId " + s + " nowSpeak " + nowSpeak + " nowSpeak2 " + nowSpeak2)
                     upTtsProgressSentence(
                         textChapter?.chapter?.index?:0,
                         (sentenceList[nowSpeak2].lineFirst?.chapterPosition?:0) + sentenceList[nowSpeak2].charIndexLineFirst ,
@@ -281,7 +282,7 @@ class TTSReadAloudService : BaseReadAloudService(), TextToSpeech.OnInitListener 
         }
 
         override fun onDone(s: String) {
-            LogUtils.d(TAG, "onDone utteranceId:$s")
+            AppLog.putDebug(TAG + " onDone utteranceId:$s")
             if ( readAloudBySentence ) {
                 nextSentence(s)
                 return
@@ -333,8 +334,8 @@ class TTSReadAloudService : BaseReadAloudService(), TextToSpeech.OnInitListener 
             var nowSpeak2 = s.split(",").getOrNull(1)?.toInt()?:nowSpeak
             // nowSpeak = nowSpeak2 + 1
             paragraphStartPos = 0
-            LogUtils.d(
-                TAG, "TTS6 : + onDone utteranceId " + s + " nowSpeak " + nowSpeak+ " nowSpeak2 " + nowSpeak2
+            AppLog.putDebug(
+                TAG + " TTS6 : + onDone utteranceId " + s + " nowSpeak " + nowSpeak+ " nowSpeak2 " + nowSpeak2
             )
             if ( nowSpeak2 + 1 >= sentenceList.size ) {
                 nextChapter()
