@@ -242,6 +242,25 @@ abstract class BaseReadAloudService : BaseService(),
 
         execute(executeContext = IO) {
             this@BaseReadAloudService.pageIndex = pageIndex
+
+            ReadBook.curTextChapter?.let {
+                for ( id in it.pages.indices ) {
+                    it.pages[id].removePageAloudSpan()
+                }
+            }
+
+            ReadBook.prevTextChapter?.let {
+                for ( id in it.pages.indices ) {
+                    it.pages[id].removePageAloudSpan()
+                }
+            }
+
+            ReadBook.nextTextChapter?.let {
+                for ( id in it.pages.indices ) {
+                    it.pages[id].removePageAloudSpan()
+                }
+            }
+
             textChapter = ReadBook.curTextChapter
             val textChapter = textChapter ?: return@execute
             if (!textChapter.isCompleted) {
