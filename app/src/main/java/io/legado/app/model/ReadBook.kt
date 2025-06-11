@@ -464,12 +464,16 @@ object ReadBook : CoroutineScope by MainScope() {
         callBack?.pageChanged()
         curTextChapter?.let {
             if (BaseReadAloudService.isRun && it.isCompleted) {
+                /*
                 val scrollPageAnim = pageAnim() == 3
                 if (scrollPageAnim && pageChanged) {
+                    // 只有在滚动页面时，并且传入暂停，才会暂停
                     ReadAloud.pause(appCtx)
                 } else {
+                    // 其他情况，都重新播放，从当前页开始位置朗读
                     readAloud(!BaseReadAloudService.pause)
                 }
+                 */
             }
         }
         upReadTime()
