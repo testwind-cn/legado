@@ -295,7 +295,10 @@ data class TextChapter(
                 return index
             }
         }
-        return -1
+        return if (sentences.isNotEmpty())
+            sentences.size - 1
+        else
+            0
     }
 
     fun getChapterSentences(): List<TextSentence> {
