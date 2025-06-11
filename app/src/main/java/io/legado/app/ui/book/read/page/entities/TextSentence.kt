@@ -2,6 +2,7 @@ package io.legado.app.ui.book.read.page.entities
 
 
 import androidx.annotation.Keep
+import io.legado.app.constant.AppPattern
 import io.legado.app.ui.book.read.page.entities.TextChapter.Companion.emptyTextChapter
 import io.legado.app.utils.LogUtils
 import java.util.regex.Pattern
@@ -140,9 +141,9 @@ data class TextSentence(
             textChapter = chapter
 
             //匹配格式化后的图片格式
-            // val senPattern: Pattern = Pattern.compile("([。，；？!,;?]|\\.(?=\\s)|!(?=\\s))" ) //""([。，；？!.,;?])") // 不要 ”：、
+            // val senPattern: Pattern = Pattern.compile("([。，；？！,;?!]|\\.(?=\\s)|!(?=\\s))" ) //""([。，；？!.,;?])") // 不要 ”：、
             // 上面是包含逗号，下面不用逗号
-            val senPattern: Pattern = Pattern.compile("([。；？!;?]|\\.(?=\\s)|!(?=\\s))" ) //""([。，；？!.,;?])") // 不要  ”，,：、
+            val senPattern: Pattern = Pattern.compile("([。；？！;?!]|\\.(?=\\s)|!(?=\\s))" ) //""([。，；？!.,;?])") // 不要  ”，,：、
             // 或者后面不是数字的英文句点 |\\.(?!\\d) // 不要，否则会分开类似 Pattern.compile
             // 或者后面是空格的英文句点   |\\.(?=\\s)
             // 或者后面是空格的英文感叹号  |!(?=\\s)
@@ -164,7 +165,7 @@ data class TextSentence(
                         if (text.startsWith("它的功能强大且")) {
                             LogUtils.d("TTS8", "============")
                         }
-                        if (text.isNotBlank()) {
+                        if ( text.isNotBlank() && !text.matches(AppPattern.notReadAloudRegex) ) {
                             // Wang Jun 添加图片
                             var a = TextSentence(
                                 start + textChapter.paragraphs[index].chapterPosition,
