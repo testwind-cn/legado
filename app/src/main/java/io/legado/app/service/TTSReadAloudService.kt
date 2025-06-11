@@ -121,9 +121,11 @@ class TTSReadAloudService : BaseReadAloudService(), TextToSpeech.OnInitListener 
                 if (paragraphStartPos > 0 && i == nowSpeak) {
                     text = text.substring(paragraphStartPos)
                 }
+                /* 会漏一个图片居中，总数少了
                 if (text.matches(AppPattern.notReadAloudRegex)) {
                     continue
                 }
+                 */
                 if (!isAddedText) {
                     val result = tts.runCatching {
                         AppLog.putDebug("tts QUEUE_FLUSH " + i)
