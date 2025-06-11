@@ -99,16 +99,22 @@ class TextPageFactory(dataSource: DataSource) : PageFactory<TextPage>(dataSource
             currentChapter?.let {
                 val pageIndex = pageIndex
                 if (pageIndex < it.pageSize - 1) {
+                    /* 不要清除朗读标志
                     return@with it.getPage(pageIndex + 1)?.removePageAloudSpan()
                         ?: TextPage(title = it.title).format()
+                     */
+                    return@with it.getPage(pageIndex + 1)?: TextPage(title = it.title).format()
                 }
                 if (!it.isCompleted) {
                     return@with TextPage(title = it.title).format()
                 }
             }
             nextChapter?.let {
+                /* 不要清除朗读标志
                 return@with it.getPage(0)?.removePageAloudSpan()
                     ?: TextPage(title = it.title).format()
+                 */
+                return@with it.getPage(0)?: TextPage(title = it.title).format()
             }
             return TextPage().format()
         }
@@ -121,16 +127,22 @@ class TextPageFactory(dataSource: DataSource) : PageFactory<TextPage>(dataSource
             currentChapter?.let {
                 val pageIndex = pageIndex
                 if (pageIndex > 0) {
+                    /* 不要清除朗读标志
                     return@with it.getPage(pageIndex - 1)?.removePageAloudSpan()
                         ?: TextPage(title = it.title).format()
+                     */
+                    return@with it.getPage(pageIndex - 1)?: TextPage(title = it.title).format()
                 }
                 if (!it.isCompleted) {
                     return@with TextPage(title = it.title).format()
                 }
             }
             prevChapter?.let {
+                /* 不要清除朗读标志
                 return@with it.lastPage?.removePageAloudSpan()
                     ?: TextPage(title = it.title).format()
+                 */
+                return@with it.lastPage?: TextPage(title = it.title).format()
             }
             return TextPage().format()
         }
@@ -140,19 +152,28 @@ class TextPageFactory(dataSource: DataSource) : PageFactory<TextPage>(dataSource
             currentChapter?.let {
                 val pageIndex = pageIndex
                 if (pageIndex < it.pageSize - 2) {
+                    /* 不要清除朗读标志
                     return@with it.getPage(pageIndex + 2)?.removePageAloudSpan()
                         ?: TextPage(title = it.title).format()
+                     */
+                    return@with it.getPage(pageIndex + 2)?: TextPage(title = it.title).format()
                 }
                 if (!it.isCompleted) {
                     return@with TextPage(title = it.title).format()
                 }
                 nextChapter?.let { nc ->
                     if (pageIndex < it.pageSize - 1) {
+                        /* 不要清除朗读标志
                         return@with nc.getPage(0)?.removePageAloudSpan()
                             ?: TextPage(title = nc.title).format()
+                         */
+                        return@with nc.getPage(0)?: TextPage(title = nc.title).format()
                     }
+                    /* 不要清除朗读标志
                     return@with nc.getPage(1)?.removePageAloudSpan()
                         ?: TextPage(text = keepSwipeTip).format()
+                     */
+                    return@with nc.getPage(1)?: TextPage(text = keepSwipeTip).format()
                 }
             }
             return TextPage().format()
