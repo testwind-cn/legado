@@ -15,6 +15,7 @@ import splitties.init.appCtx
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.logging.FileHandler
+import java.util.logging.Handler
 import java.util.logging.Level
 import java.util.logging.LogRecord
 import java.util.logging.Logger
@@ -30,11 +31,29 @@ object LogUtils {
         fileHandler = createFileHandler(context)?.also {
             logger.addHandler(it)
         }
+
+        androidLogHandler = createAndroidHandler(context)?.also {
+            logger.addHandler(it)
+        }
+
+        // 禁用父 Logger 传递
+        logger.useParentHandlers = false;
+
+        upLevel()
+    }
+
+    fun getRecordLevel(isDebugLog: Boolean = false): Level {
+        var level = Level.INFO
+        if ( isDebugLog ) {
+            level = Level.FINE
+        }
+        return level
     }
 
     @JvmStatic
-    fun d(tag: String, msg: String) {
-        logger.log(Level.INFO, "$tag $msg")
+    fun d(tag: String, msg: String, isDebugLog: Boolean = false) {
+        var level = getRecordLevel(isDebugLog)
+        logger.log(level, "$tag $msg")
     }
 
     inline fun d(tag: String, lazyMsg: () -> String) {
@@ -53,6 +72,8 @@ object LogUtils {
     }
 
     private var fileHandler: FileHandler? = null
+
+    private var androidLogHandler : Handler? = null
 
     private fun createFileHandler(context: Context): FileHandler? {
         try {
@@ -75,11 +96,7 @@ object LogUtils {
                         return getCurrentDateStr(TIME_PATTERN) + ": " + record.message + "\n"
                     }
                 }
-                level = if (AppConfig.recordLog) {
-                    Level.INFO
-                } else {
-                    Level.OFF
-                }
+                level = fileLevel()
             }
         } catch (e: Exception) {
             e.printStackTrace()
@@ -88,13 +105,71 @@ object LogUtils {
         }
     }
 
-    fun upLevel() {
-        val level = if (AppConfig.recordLog) {
-            Level.INFO
+    // 自定义一个 Handler，将 JUL 记录转发到 android.util.Log
+    private fun createAndroidHandler(context: Context): Handler? {
+        val androidLogHandler = object : Handler() {
+            override fun publish(record: LogRecord) {
+                if (!isLoggable(record)) {
+                    return
+                }
+
+                val tag = record.loggerName ?: "DefaultTag" // 或从 LogRecord 中提取更合适的 tag
+                val message = record.message //formatMessage(record)
+
+                when (record.level.intValue()) {
+                    Level.SEVERE.intValue() -> android.util.Log.e(tag, message, record.thrown)
+                    Level.WARNING.intValue() -> android.util.Log.w(tag, message, record.thrown)
+                    Level.INFO.intValue() -> android.util.Log.i(tag, message, record.thrown)
+                    Level.CONFIG.intValue() -> android.util.Log.d(tag, message, record.thrown)
+                    else -> android.util.Log.d(
+                        tag,
+                        message,
+                        record.thrown
+                    ) // FINE, FINER, FINEST
+                }
+            }
+
+            override fun flush() {}
+            override fun close() {}
+        }
+        androidLogHandler.level = consoleLevel()
+        return androidLogHandler
+    }
+
+    private fun fileLevel(): Level {
+        return if (AppConfig.recordLog) {
+            Level.FINE
         } else {
             Level.OFF
         }
+    }
+
+    private fun consoleLevel(): Level {
+        return if (AppConfig.recordLog) {
+            if (BuildConfig.DEBUG) {
+                Level.FINE
+            } else {
+                Level.INFO
+            }
+        } else {
+            if (BuildConfig.DEBUG) {
+                Level.INFO
+            } else {
+                Level.OFF
+            }
+        }
+    }
+
+    fun upLevel() {
+        val level = fileLevel()
         fileHandler?.level = level
+        androidLogHandler?.level = consoleLevel()
+
+        logger.level = if (AppConfig.recordLog) {
+            Level.FINE
+        } else {
+            Level.INFO
+        }
     }
 
     /**
