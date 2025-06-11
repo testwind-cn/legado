@@ -6,6 +6,7 @@ import android.content.res.Configuration
 import android.net.Uri
 import android.os.Bundle
 import android.os.Looper
+import android.util.Log
 import android.view.Gravity
 import android.view.InputDevice
 import android.view.KeyEvent
@@ -82,6 +83,7 @@ import io.legado.app.ui.book.read.config.TipConfigDialog.Companion.TIP_COLOR
 import io.legado.app.ui.book.read.config.TipConfigDialog.Companion.TIP_DIVIDER_COLOR
 import io.legado.app.ui.book.read.page.ContentTextView
 import io.legado.app.ui.book.read.page.ReadView
+import io.legado.app.ui.book.read.page.delegate.ScrollPageDelegate
 import io.legado.app.ui.book.read.page.entities.PageDirection
 import io.legado.app.ui.book.read.page.entities.TextPage
 import io.legado.app.ui.book.read.page.provider.ChapterProvider
@@ -1697,6 +1699,75 @@ class ReadBookActivity : BaseReadBookActivity(),
                     }
                 }
             }
+        }
+        observeEventSticky<Bundle>(EventBus.TTS_PROGRESS_PAGE) {
+            /*
+            计算当前朗读显示句子的上下角点位置，
+            大于屏幕下部，就往上滚动
+            调用【PageView.kt】relativeOffset(relativePos: Int)
+             */
+            Log.d("TTS6", "TTS_PROGRESS_PAGE")
+
+            val play = it.getString("state")
+            val chapterIndex0 = it.getInt("chapterIndex0", -1)
+            val pageIndexFirst0 = it.getInt("pageIndexFirst0", -1)
+            val lineIndexFirst0 = it.getInt("lineIndexFirst0", -1)
+            val pageIndexLast0 = it.getInt("pageIndexLast0", -1)
+            val lineIndexLast0 = it.getInt("lineIndexLast0", -1)
+            val chapterIndex1 = it.getInt("chapterIndex1", -1)
+            val pageIndexFirst1 = it.getInt("pageIndexFirst1", -1)
+            val lineIndexFirst1 = it.getInt("lineIndexFirst1", -1)
+            val pageIndexLast1 = it.getInt("pageIndexLast1", -1)
+            val lineIndexLast1 = it.getInt("lineIndexLast1", -1)
+            var a1 = readView.pageFactory.curPage.getLine(0).text
+            var a2 = readView.pageFactory.curPageIndex()
+            var a3 = readView.curPage.relativeOffset(0)
+
+            var line0Top:Float = getLinePos(chapterIndex0,pageIndexFirst0,lineIndexFirst0,true)
+            var line0Bottom:Float = getLinePos(chapterIndex0,pageIndexLast0,lineIndexLast0,false)
+            var line1Top:Float = getLinePos(chapterIndex1,pageIndexFirst1,lineIndexFirst1,true)
+            var line1Bottom:Float = getLinePos(chapterIndex1,pageIndexLast1,lineIndexLast1,false)
+
+            if  ( line0Top < ChapterProvider.visibleHeight && line0Bottom  >= 0) { // 字符区域开始行，在显示区域内
+                if ( line1Bottom >= ChapterProvider.visibleHeight * 15 / 16 ) { // 字符区域底部行，在显示区域过低
+                    val offset = (ChapterProvider.visibleHeight / 8 - line1Top).toInt()
+                    // readView.curPage.scroll(offset)
+                    if ( binding.readView.pageDelegate is ScrollPageDelegate) {
+                        (binding.readView.pageDelegate as ScrollPageDelegate).scrollPageByAnim(offset,300)
+                    }
+
+                }
+            }
+
+
+            if ( pageIndexFirst0 < a2 ) {
+                var top = a3
+            }
+            //readView.
+            var a4 = readView.pageFactory.curPage.lines.lastOrNull()?.chapterPosition?:0
+            var a5 = readView.getCurPagePosition() // 字符位置
+            AppLog.putDebug("TTS6-2 "+"s " + play +
+                    ", line0Top " + line0Top +
+                    ", line0Bottom " + line0Bottom +
+                    ", line1Top " + line1Top +
+
+                    ", a2 curPageIndex " + a2 +
+                    ", a3 relativeOffset " + a3 +
+                    ", a4 chapterPosition " + a4 +
+                    ", a5 getCurPagePosition " + a5 +
+                    ", c1 " + chapterIndex1 +
+                    ", p1" + pageIndexFirst0 +
+                    "," + lineIndexFirst0 +
+                    "," + pageIndexLast0 +
+                    "," + lineIndexLast0 +
+                    "," + chapterIndex1 +
+                    "," + pageIndexFirst1 +
+                    "," + lineIndexFirst1 +
+                    "," + a1
+            )
+            // 我原来的字符起止，在可视以内
+            //    我新的开始行上面位置，大于屏幕2/3,
+            //        就改到 1/3
         }
         observeEvent<Boolean>(PreferKey.keepLight) {
             upScreenTimeOut()
