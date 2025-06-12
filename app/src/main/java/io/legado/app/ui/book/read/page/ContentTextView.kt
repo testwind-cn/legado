@@ -10,6 +10,7 @@ import io.legado.app.R
 import io.legado.app.data.entities.Bookmark
 import io.legado.app.help.config.AppConfig
 import io.legado.app.model.ReadBook
+import io.legado.app.ui.book.read.ReadBookActivity
 import io.legado.app.ui.book.read.page.delegate.PageDelegate
 import io.legado.app.ui.book.read.page.entities.TextLine
 import io.legado.app.ui.book.read.page.entities.TextPage
@@ -245,6 +246,10 @@ class ContentTextView(context: Context, attrs: AttributeSet?) : View(context, at
                 }
 
                 is ImageColumn -> if (AppConfig.previewImageByClick) {
+                    val a = activity
+                    if (a is ReadBookActivity) {
+                        a.setReadAloud(false)
+                    }
                     activity?.showDialogFragment(PhotoDialog(column.src))
                     handled = true
                 }
