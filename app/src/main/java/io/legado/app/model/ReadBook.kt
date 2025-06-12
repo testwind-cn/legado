@@ -423,10 +423,12 @@ object ReadBook : CoroutineScope by MainScope() {
     }
 
     fun setPageIndex(index: Int) {
+        AppLog.putDebug("TTS3-5 : " + "1 durChapterPos " + durChapterPos + " index " + index)
         recycleRecorders(durPageIndex, index)
         durChapterPos = curTextChapter?.getReadLength(index) ?: index
+        AppLog.putDebug("TTS3-5 : " + "2 durChapterPos " + durChapterPos + " index " + index)
         saveRead(true)
-        curPageChanged(true)
+        curPageChanged(false)
     }
 
     fun recycleRecorders(beforeIndex: Int, afterIndex: Int) {
